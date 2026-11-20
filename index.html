@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>연금 비교 대시보드 | 든든파트너스</title>
+<meta name="description" content="여러 연금 상품을 한 화면에서 나란히 비교하는 상담용 대시보드 (든든파트너스)" />
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230F1E36'/%3E%3Cpath d='M20 46V18h9a14 14 0 0 1 0 28h-9z' fill='none' stroke='%23C9A24D' stroke-width='5'/%3E%3C/svg%3E" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar no-print">
+    <div class="topbar-inner">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">D</span>
+        <span class="brand-text">
+          <strong>든든파트너스</strong>
+          <small>연금 비교 대시보드 · 상담용</small>
+        </span>
+      </div>
+      <div class="topbar-actions">
+        <button type="button" class="btn btn-ghost" id="btnPaste" title="엑셀·구글시트 표를 복사해 붙여넣기">
+          <span class="ico">▦</span> 표 붙여넣기
+        </button>
+        <button type="button" class="btn btn-ghost" id="btnJson" title="JSON 파일로 내보내기 / 가져오기">
+          <span class="ico">{ }</span> JSON
+        </button>
+        <button type="button" class="btn btn-primary" id="btnAddPlan">
+          <span class="ico">+</span> 상품 추가
+        </button>
+        <button type="button" class="btn btn-gold" id="btnPrint">
+          <span class="ico">⎙</span> A4 리포트 / PDF
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <!-- 인쇄용 머리말 -->
+    <section class="print-head">
+      <div class="print-head-brand">
+        <span class="brand-mark">D</span>
+        <div>
+          <strong>든든파트너스</strong>
+          <small>연금 상품 비교 리포트</small>
+        </div>
+      </div>
+      <div class="print-head-meta" id="printMeta"></div>
+    </section>
+
+    <!-- 상담 정보 + 플랜 선택 -->
+    <section class="card setup no-print">
+      <div class="card-head">
+        <h2>상담 정보</h2>
+        <span class="hint">입력한 내용은 이 브라우저에 자동 저장됩니다</span>
+      </div>
+      <div class="setup-grid">
+        <label class="field">
+          <span>고객명</span>
+          <input id="custName" type="text" placeholder="예) 김고객" autocomplete="off" />
+        </label>
+        <label class="field">
+          <span>나이</span>
+          <input id="custAge" type="number" min="0" max="120" placeholder="예) 47" />
+        </label>
+        <label class="field">
+          <span>목표 은퇴 나이</span>
+          <input id="custRetire" type="number" min="0" max="120" placeholder="예) 65" />
+        </label>
+        <label class="field">
+          <span>상담일</span>
+          <input id="custDate" type="date" />
+        </label>
+        <label class="field">
+          <span>환율 (원/$)</span>
+          <input id="fxRate" type="number" min="0" step="10" placeholder="1400" />
+        </label>
+      </div>
+      <div class="chips" id="planChips" role="group" aria-label="비교할 플랜 선택"></div>
+      <p class="hint" id="chipHint">최대 4개까지 한 번에 비교할 수 있습니다.</p>
+    </section>
+
+    <!-- 차트 -->
+    <section class="card chart-card">
+      <div class="card-head">
+        <h2>시점별 예상 적립금 · 수령액</h2>
+        <div class="seg no-print" role="group" aria-label="차트 종류">
+          <button type="button" class="seg-btn is-on" data-chart="bar">막대 · 적립금</button>
+          <button type="button" class="seg-btn" data-chart="line">라인 · 적립 추이</button>
+          <button type="button" class="seg-btn" data-chart="payout">막대 · 월 수령액</button>
+        </div>
+      </div>
+      <div class="chart-wrap">
+        <svg id="chart" viewBox="0 0 900 360" preserveAspectRatio="xMidYMid meet" role="img" aria-label="시점별 적립금 비교 차트"></svg>
+      </div>
+      <div class="legend" id="legend"></div>
+      <p class="hint" id="chartNote">막대는 각 시점 누적 납입원금에 해지환급률을 적용한 예상 적립금(환급금)입니다. 달러 상품은 입력한 환율로 원화 환산해 표시합니다.</p>
+    </section>
+
+    <!-- 비교 표 -->
+    <section class="card table-card">
+      <div class="card-head">
+        <h2>한눈에 비교</h2>
+        <span class="hint no-print">열 제목을 누르면 해당 플랜을 편집할 수 있습니다</span>
+      </div>
+      <div class="table-scroll">
+        <table id="cmpTable" class="cmp-table"></table>
+      </div>
+      <p class="footnote">
+        ※ 본 화면의 수치는 <strong>화면 구성용 예시값</strong>이며 실제 상품의 공시 수치·약관이 아닙니다.
+        상담 시에는 해당 상품의 가입설계서·공시 자료를 기준으로 다시 확인해 주세요.
+        해지환급률과 예상 수령액은 납입 시점·운용수익·공시이율에 따라 달라질 수 있습니다.
+      </p>
+    </section>
+
+    <!-- 안내 -->
+    <section class="card guide no-print">
+      <div class="card-head">
+        <h2>이 앱에 넣을 자료 · 편하게 쓰는 방법</h2>
+        <button type="button" class="btn btn-mini" id="btnReset">샘플 데이터로 초기화</button>
+      </div>
+      <ol class="guide-list">
+        <li><strong>표 붙여넣기(가장 편함)</strong> — 구글시트·엑셀에서 아래 열 순서대로 값만 복사해 <em>표 붙여넣기</em>를 누르면 한 번에 등록됩니다.</li>
+        <li><strong>상품 추가 / 편집</strong> — 상품 하나씩 폼으로 입력·수정. 상담 중 고객 조건에 맞춰 바로 바꿀 수 있습니다.</li>
+        <li><strong>JSON</strong> — 상품 묶음을 파일로 저장해 두었다가 다른 기기에서 불러올 수 있습니다.</li>
+        <li><strong>A4 리포트 / PDF</strong> — 고객에게 보여줄 1장 요약본. 브라우저 인쇄 창에서 ‘PDF로 저장’을 선택하세요.</li>
+      </ol>
+      <details class="paste-guide">
+        <summary>붙여넣기 열 순서 보기</summary>
+        <div class="paste-cols">
+          <code>플랜명</code><code>상품유형</code><code>통화</code><code>월납입액</code><code>납입기간</code>
+          <code>5년환급률</code><code>10년환급률</code><code>15년환급률</code><code>20년환급률</code><code>개시환급률</code>
+          <code>개시나이</code><code>월수령액</code><code>태그</code><code>유의사항</code><code>추천대상</code>
+        </div>
+        <p class="hint">첫 줄은 머리글로 인식합니다. 없는 열은 비워 두면 됩니다. 예) <code>IRP예시 · IRP · KRW · 500000 · 10 · 96 · 103 · 112 · 122 · 122 · 65 · 230000 · 세액공제/비과세</code></p>
+      </details>
+    </section>
+
+    <footer class="foot no-print">
+      <span>든든파트너스 · 연금 비교 대시보드</span>
+      <span>서버 없이 동작하는 정적 웹앱 · 입력값은 이 브라우저에만 저장</span>
+    </footer>
+  </main>
+</div>
+
+<!-- 상품 편집 모달 -->
+<dialog id="planDialog" class="dialog">
+  <form id="planForm" method="dialog" novalidate>
+    <header class="dialog-head">
+      <h3 id="dialogTitle">상품 추가</h3>
+      <button type="button" class="icon-btn" id="btnClosePlan" aria-label="닫기">✕</button>
+    </header>
+    <div class="dialog-body">
+      <div class="form-grid">
+        <label class="field"><span>플랜명 *</span><input name="name" type="text" required placeholder="예) 세액공제형 IRP" /></label>
+        <label class="field"><span>상품유형</span><input name="type" type="text" placeholder="예) IRP · 연금보험 · 달러 연금" /></label>
+        <label class="field"><span>통화</span>
+          <select name="currency"><option value="KRW">원화 (KRW)</option><option value="USD">달러 (USD)</option></select>
+        </label>
+        <label class="field"><span>월 납입액 *</span><input name="monthly" type="number" min="0" step="1000" required placeholder="500000" /></label>
+        <label class="field"><span>납입기간 (년) *</span><input name="payYears" type="number" min="1" max="60" step="1" required placeholder="10" /></label>
+        <label class="field"><span>연금 개시 나이</span><input name="startAge" type="number" min="40" max="100" step="1" placeholder="65" /></label>
+        <label class="field"><span>수령 방식</span>
+          <select name="payoutType">
+            <option>종신</option><option>확정 20년</option><option>확정 10년</option><option>종신(연금전환)</option><option>거치 후 종신</option>
+          </select>
+        </label>
+        <label class="field"><span>예상 월 수령액 *</span><input name="payoutMonthly" type="number" min="0" step="1000" required placeholder="230000" /></label>
+      </div>
+
+      <div class="form-section">
+        <h4>시점별 해지환급률 (%)</h4>
+        <div class="form-grid form-grid--rates">
+          <label class="field"><span>5년</span><input name="rate5" type="number" min="0" max="400" step="0.1" placeholder="96" /></label>
+          <label class="field"><span>10년</span><input name="rate10" type="number" min="0" max="400" step="0.1" placeholder="103" /></label>
+          <label class="field"><span>15년</span><input name="rate15" type="number" min="0" max="400" step="0.1" placeholder="112" /></label>
+          <label class="field"><span>20년</span><input name="rate20" type="number" min="0" max="400" step="0.1" placeholder="122" /></label>
+          <label class="field"><span>개시 시점</span><input name="rateStart" type="number" min="0" max="400" step="0.1" placeholder="122" /></label>
+        </div>
+        <p class="hint">예상 적립금 = 누적 납입원금 × 환급률. 개시 시점은 총 납입원금 기준입니다.</p>
+      </div>
+
+      <div class="form-grid">
+        <label class="field field--wide"><span>태그 (쉼표 또는 / 로 구분)</span><input name="tags" type="text" placeholder="세액공제, 비과세, 최저보증" /></label>
+        <label class="field field--wide"><span>유의사항</span><textarea name="caution" rows="2" placeholder="중도해지 시 원금 손실 가능 등"></textarea></label>
+        <label class="field field--wide"><span>추천 대상</span><textarea name="recommend" rows="2" placeholder="소득 있는 30~50대"></textarea></label>
+      </div>
+      <p class="form-error" id="planError" hidden></p>
+    </div>
+    <footer class="dialog-foot">
+      <button type="button" class="btn btn-danger-ghost" id="btnDeletePlan">삭제</button>
+      <span class="spacer"></span>
+      <button type="button" class="btn btn-ghost" id="btnCancelPlan">취소</button>
+      <button type="submit" class="btn btn-primary" id="btnSavePlan">저장</button>
+    </footer>
+  </form>
+</dialog>
+
+<!-- 붙여넣기 모달 -->
+<dialog id="pasteDialog" class="dialog dialog--wide">
+  <form id="pasteForm" method="dialog">
+    <header class="dialog-head">
+      <h3>엑셀 · 구글시트 표 붙여넣기</h3>
+      <button type="button" class="icon-btn" id="btnClosePaste" aria-label="닫기">✕</button>
+    </header>
+    <div class="dialog-body">
+      <p class="hint">시트에서 <strong>머리글 포함</strong> 영역을 복사해 붙여넣으세요. 탭(TSV)과 쉼표(CSV)를 모두 인식합니다.</p>
+      <textarea id="pasteArea" rows="9" spellcheck="false" placeholder="플랜명&#9;상품유형&#9;통화&#9;월납입액&#9;납입기간&#9;5년환급률&#9;10년환급률&#9;15년환급률&#9;20년환급률&#9;개시환급률&#9;개시나이&#9;월수령액&#9;태그&#9;유의사항&#9;추천대상"></textarea>
+      <label class="check"><input type="checkbox" id="pasteReplace" /> 기존 플랜을 지우고 새로 채우기</label>
+      <p class="form-error" id="pasteError" hidden></p>
+      <p class="hint" id="pasteResult" hidden></p>
+    </div>
+    <footer class="dialog-foot">
+      <span class="spacer"></span>
+      <button type="button" class="btn btn-ghost" id="btnCancelPaste">취소</button>
+      <button type="button" class="btn btn-primary" id="btnApplyPaste">표 적용</button>
+    </footer>
+  </form>
+</dialog>
+
+<input type="file" id="jsonFile" accept="application/json,.json" hidden />
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
