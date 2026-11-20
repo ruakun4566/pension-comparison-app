@@ -273,7 +273,7 @@ def main():
             page.click('#tabbar .tab[data-tab="preset"]')
             page.wait_for_timeout(500)
             check("탭4 패널 표시", page.locator("#tab-preset").is_visible())
-            check("탭4 행 39건", page.locator("#presetTableWrap tbody tr").count() == 39,
+            check("탭4 행 41건", page.locator("#presetTableWrap tbody tr").count() == 41,
                   page.locator("#presetTableWrap tbody tr").count())
             heads4 = page.locator("#presetTableWrap thead th").all_inner_texts()
             check("탭4 수령액 열 존재(값 있는 행 있음)", "예상 연 수령액" in heads4, heads4)
@@ -353,7 +353,7 @@ def main():
             mp.wait_for_timeout(500)
             check("모바일 탭4 가로 스크롤 없음", mp.evaluate("document.documentElement.scrollWidth") <= 400,
                   mp.evaluate("document.documentElement.scrollWidth"))
-            check("모바일 탭4 행 39건", mp.locator("#presetTableWrap tbody tr").count() == 39)
+            check("모바일 탭4 행 41건", mp.locator("#presetTableWrap tbody tr").count() == 41)
             check("모바일 플로팅 카카오", mp.locator("#kakaoFloat").is_visible())
             mp.screenshot(path=os.path.join(SHOT, "17-mobile-tab4.png"), full_page=True)
             m.close()

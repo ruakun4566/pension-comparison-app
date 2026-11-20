@@ -685,6 +685,40 @@ window.PRESET_DATA = {
    "status": "na",
    "reason": "계산기 안내: 가입가능연령은 0세 ~ 30세 입니다.",
    "queriedAt": "2026-11-21"
+  },
+  {
+   "company": "im",
+   "product": "(FC,GA) iM세이프 PRO연금보험(무) 2601",
+   "gender": "남",
+   "joinMan": 40,
+   "joinIns": 41,
+   "term": 12,
+   "premium": 500000,
+   "status": "ok",
+   "reason": "",
+   "queriedAt": "2026-11-21",
+   "start": 70,
+   "paid": 72000000,
+   "pensionBase": 175170000,
+   "annualStd": 10729163,
+   "monthlyStd": 903243
+  },
+  {
+   "company": "im",
+   "product": "(FC,GA) iM세이프 PRO연금보험(무) 2601",
+   "gender": "남",
+   "joinMan": 40,
+   "joinIns": 41,
+   "term": 12,
+   "premium": 500000,
+   "status": "ok",
+   "reason": "",
+   "queriedAt": "2026-11-21",
+   "start": 80,
+   "paid": 72000000,
+   "pensionBase": 211170000,
+   "annualStd": 13968896,
+   "monthlyStd": 1175983
   }
  ]
 };
