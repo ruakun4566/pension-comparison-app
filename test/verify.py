@@ -61,7 +61,7 @@ def main():
 
             # ============ 1. 탭 1 기본 ============
             check("title", "통합" in page.title(), page.title())
-            check("탭 3개", page.locator("#tabbar .tab").count() == 3)
+            check("탭 4개", page.locator("#tabbar .tab").count() == 4)
             check("기본 활성 탭 = 한눈에 비교", page.locator('#tabbar .tab[data-tab="compare"]').get_attribute("aria-selected") == "true")
             check("비교표 초기 4열", page.locator("#cmpTable thead .plan-head").count() == 4)
             check("비교표 15행", page.locator("#cmpTable tbody tr").count() == 15)
@@ -269,11 +269,43 @@ def main():
             page.wait_for_timeout(400)
             check("복원된 탭2 5년납 3사", page.locator(".intl-card").count() == 3)
 
+            # ============ 8b. 탭 4 : 국내 3사 대표 프리셋 ============
+            page.click('#tabbar .tab[data-tab="preset"]')
+            page.wait_for_timeout(500)
+            check("탭4 패널 표시", page.locator("#tab-preset").is_visible())
+            check("탭4 행 39건", page.locator("#presetTableWrap tbody tr").count() == 39,
+                  page.locator("#presetTableWrap tbody tr").count())
+            heads4 = page.locator("#presetTableWrap thead th").all_inner_texts()
+            check("탭4 수령액 열 존재(값 있는 행 있음)", "예상 연 수령액" in heads4, heads4)
+            check("탭4 카카오 배지", page.locator(".kakao-card-actions a").count() == 2)
+            check("탭4 카카오 홈 링크", "pf.kakao.com/_QZdWX" in page.locator('.kakao-card-actions a[data-kakao="home"]').get_attribute("href"))
+            check("탭4 카카오 1:1채팅 링크", "/chat" in page.locator('.kakao-card-actions a[data-kakao="chat"]').get_attribute("href"))
+            check("플로팅 카카오 배지", page.locator("#kakaoFloat").is_visible())
+            check("보험사 규칙 카드 3개", page.locator(".rule-card").count() == 3)
+            # 회사 필터 + 불가 표시
+            page.select_option("#presetCompany", "kdb")
+            page.wait_for_timeout(250)
+            check("KDB 필터 28건", page.locator("#presetTableWrap tbody tr").count() == 28,
+                  page.locator("#presetTableWrap tbody tr").count())
+            page.select_option("#presetStatus", "na")
+            page.wait_for_timeout(250)
+            check("KDB 불가 1건", page.locator("#presetTableWrap tbody tr").count() == 1)
+            na_txt = page.locator("#presetTableWrap tbody").inner_text()
+            check("불가 사유 노출", "보험나이+납입기간+5" in na_txt, na_txt[:120])
+            heads_na = page.locator("#presetTableWrap thead th").all_inner_texts()
+            check("불가만 볼 때 수령액 열 자체가 사라짐", "예상 연 수령액" not in heads_na, heads_na)
+            page.select_option("#presetCompany", "all")
+            page.select_option("#presetStatus", "all")
+            page.wait_for_timeout(300)
+            page.screenshot(path=os.path.join(SHOT, "16-tab4-프리셋.png"), full_page=True)
+
             # ============ 9. A4 리포트 (탭 3에서 인쇄해도 탭 1 리포트) ============
             page.emulate_media(media="print")
             page.wait_for_timeout(400)
             check("인쇄 시 탭바 숨김", not page.locator("#tabbar").is_visible())
             check("인쇄 시 탭1 리포트 표시", page.locator("#tab-compare").is_visible())
+            check("인쇄 시 탭4 숨김", not page.locator("#tab-preset").is_visible())
+            check("인쇄 리포트 하단 카카오채널", page.locator("#printKakao").is_visible())
             check("인쇄 시 탭2 숨김", not page.locator("#tab-intl").is_visible())
             page.screenshot(path=os.path.join(SHOT, "09-print-preview.png"), full_page=True)
             pdf_path = os.path.join(SHOT, "report.pdf")
@@ -290,6 +322,7 @@ def main():
                 t = pg.get_text().replace("\n", "").replace(" ", "")
                 check("PDF에 담은 4개 상품", all(k in t for k in ("해외달러유배당", "단기납종신", "Generali", "ITA")), t[:160])
                 check("PDF에 유의사항 고지문", "본화면의수치는" in t)
+                check("PDF 하단 카카오채널 링크", "pf.kakao.com/_QZdWX" in t or "든든한금융파트너스카카오채널" in t)
             except Exception as e:  # noqa: BLE001
                 check("PDF 페이지 확인", False, e)
             page.emulate_media(media="screen")
@@ -316,6 +349,13 @@ def main():
                   mp.evaluate("document.documentElement.scrollWidth"))
             check("모바일 탭3 담기 버튼", mp.locator("#itaAdd").is_visible())
             mp.screenshot(path=os.path.join(SHOT, "13-mobile-tab3.png"), full_page=True)
+            mp.click('#tabbar .tab[data-tab="preset"]')
+            mp.wait_for_timeout(500)
+            check("모바일 탭4 가로 스크롤 없음", mp.evaluate("document.documentElement.scrollWidth") <= 400,
+                  mp.evaluate("document.documentElement.scrollWidth"))
+            check("모바일 탭4 행 39건", mp.locator("#presetTableWrap tbody tr").count() == 39)
+            check("모바일 플로팅 카카오", mp.locator("#kakaoFloat").is_visible())
+            mp.screenshot(path=os.path.join(SHOT, "17-mobile-tab4.png"), full_page=True)
             m.close()
 
             # ============ 11. 태블릿 ============

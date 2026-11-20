@@ -52,6 +52,10 @@
       <span class="tab-no">3</span>
       <span class="tab-txt"><b>글로벌 자산 (ITA)</b><small>S&amp;P500 · EVO 적립식</small></span>
     </button>
+    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="preset">
+      <span class="tab-no">4</span>
+      <span class="tab-txt"><b>국내 3사 프리셋</b><small>IBK · KDB · iM 계산기 실측 설계</small></span>
+    </button>
   </nav>
 
   <main class="main">
@@ -158,6 +162,18 @@
           </div>
           <p class="hint">첫 줄은 머리글로 인식합니다. 없는 열은 비워 두면 됩니다. 예) <code>IRP예시 · IRP · KRW · 500000 · 10 · 96 · 103 · 112 · 122 · 122 · 65 · 230000 · 세액공제/비과세</code></p>
         </details>
+      </section>
+
+      <!-- 인쇄 리포트 하단: 든든한 금융파트너스 카카오채널 -->
+      <section class="print-kakao" id="printKakao">
+        <div class="print-kakao-txt">
+          <strong>상담·가입설계 문의</strong>
+          <span>든든한 금융파트너스 카카오채널 · 전경일 대표</span>
+        </div>
+        <div class="print-kakao-link">
+          <b>pf.kakao.com/_QZdWX</b>
+          <span>카카오톡에서 채널 추가 후 1:1 채팅</span>
+        </div>
       </section>
 
       <footer class="foot no-print">
@@ -340,8 +356,74 @@
       </p>
     </div>
 
+    <!-- ================= 탭 4 : 국내 3사 대표 프리셋 ================= -->
+    <div class="tabpanel" id="tab-preset" role="tabpanel" data-panel="preset" hidden>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>국내 3사 대표 프리셋</h2>
+          <span class="hint">IBK · KDB · iM라이프 연금 계산기에서 직접 조회한 설계</span>
+        </div>
+        <div class="summary-strip" id="presetSummary"></div>
+        <div class="preset-filters no-print">
+          <label class="field"><span>보험사</span><select id="presetCompany"></select></label>
+          <label class="field"><span>월 보험료</span><select id="presetPremium"></select></label>
+          <label class="field"><span>납입기간</span><select id="presetTerm"></select></label>
+          <label class="field"><span>가입나이</span><select id="presetJoin"></select></label>
+          <label class="field"><span>연금개시나이</span><select id="presetStart"></select></label>
+          <label class="field"><span>판정</span><select id="presetStatus"></select></label>
+        </div>
+        <p class="hint">
+          표시된 금액은 각 사 계산기가 2026-11-21 기준으로 산출한 값입니다. 계산기가 값을 주지 않는 조합은
+          <b>가입 불가</b>로 적었고, 아직 조회하지 않은 조합은 표에 넣지 않았습니다(추정값 없음).
+        </p>
+      </section>
+
+      <section class="card table-card">
+        <div class="card-head">
+          <h2>실측 설계 · 예상 연금액</h2>
+          <span class="hint no-print">각 사 계산기로 조회한 값 그대로입니다</span>
+        </div>
+        <div class="table-scroll preset-scroll" id="presetTableWrap"></div>
+        <p class="footnote">
+          ※ 상품·보험료·개시나이 조건에 따라 계산기가 산출하지 못하는 조합이 있어 <b>가입 불가 사유</b>를 함께 적었습니다.
+          같은 상품이라도 가입 시점의 공시이율·적립액·연금사망률에 따라 실제 수령액은 달라집니다.
+          본 표는 상담용 참고자료이며 계약의 근거가 되는 가입설계서가 아닙니다.
+        </p>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>보험사별 가입 조건 · 계산기 제약</h2>
+        </div>
+        <div class="rules-grid" id="presetRules"></div>
+      </section>
+
+      <!-- 든든한 금융파트너스 카카오채널 (앱 화면 한쪽) -->
+      <section class="card kakao-card no-print">
+        <div class="kakao-card-body">
+          <div class="kakao-card-txt">
+            <h2>든든한 금융파트너스 카카오채널</h2>
+            <p>이 표를 바탕으로 고객 조건에 맞춘 가입설계·상담을 카카오톡 1:1 채팅으로 바로 받으실 수 있습니다.</p>
+          </div>
+          <div class="kakao-card-actions">
+            <a class="btn btn-gold" href="https://pf.kakao.com/_QZdWX" target="_blank" rel="noopener" data-kakao="home">채널 추가</a>
+            <a class="btn btn-primary" href="http://pf.kakao.com/_QZdWX/chat" target="_blank" rel="noopener" data-kakao="chat">1:1 채팅</a>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
   </main>
 </div>
+
+<!-- 든든한 금융파트너스 카카오채널 (화면 상시 노출) -->
+<a class="kakao-float no-print" id="kakaoFloat" href="https://pf.kakao.com/_QZdWX" target="_blank" rel="noopener" data-kakao="home"
+   aria-label="든든한 금융파트너스 카카오채널 열기">
+  <span class="kakao-float-ico" aria-hidden="true">💬</span>
+  <span class="kakao-float-txt"><b>든든한 금융파트너스</b><small>카카오채널 상담</small></span>
+</a>
 
 <!-- 상품 편집 모달 -->
 <dialog id="planDialog" class="dialog">
@@ -499,9 +581,11 @@
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
+<script src="data/presets-data.js"></script>
 <script src="data.js"></script>
 <script src="app.js"></script>
 <script src="intl.js"></script>
 <script src="ita.js"></script>
+<script src="presets.js"></script>
 </body>
 </html>

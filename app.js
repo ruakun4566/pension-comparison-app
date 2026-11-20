@@ -448,7 +448,7 @@
    */
   var activeTab = 'compare';
   function switchTab(key) {
-    if (['compare', 'intl', 'ita'].indexOf(key) < 0) key = 'compare';
+    if (['compare', 'intl', 'ita', 'preset'].indexOf(key) < 0) key = 'compare';
     activeTab = key;
     document.body.dataset.tab = key;
     $$('.tabpanel').forEach(function (panel) { panel.hidden = panel.dataset.panel !== key; });
@@ -460,6 +460,7 @@
     if (key === 'compare') { renderTable(); renderChart(); renderPrintMeta(); }
     if (key === 'intl' && window.__intlTab) window.__intlTab.refresh();
     if (key === 'ita' && window.__itaTab) window.__itaTab.refresh();
+    if (key === 'preset' && window.__presetTab) window.__presetTab.refresh();
     window.scrollTo(0, 0);
   }
 

@@ -1,0 +1,5 @@
+company,product,gender,joinAgeMan,joinAgeIns,startAge,termYears,premiumWon,status,reason,totalPaid,pensionBase,annualPension,monthlyPension,queriedAt
+im,(FC,GA) iM세이프 PRO연금보험(무) 2601,남,40,41,65,5,500000,ok,,30000000,72837500,3786093,318735,2026-11-21
+im,(FC,GA) iM세이프 PRO연금보험(무) 2601,남,40,41,65,5,200000,na,보험료는 최소 500,000원 이상이어야 합니다.,,,,,2026-11-21
+im,(FC,GA) iM세이프 PRO연금보험(무) 2601,남,40,41,65,5,300000,na,보험료는 최소 500,000원 이상이어야 합니다.,,,,,2026-11-21
+im,(FC,GA) iM스타트 PRO변액연금보험(무) 2606,남,40,41,65,10,300000,na,가입가능연령은 0세 ~ 30세 입니다.,,,,,2026-11-21

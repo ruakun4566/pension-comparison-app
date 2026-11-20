@@ -374,7 +374,7 @@ button { font-family: inherit; }
   html, body { background: #fff !important; font-size: 8.2pt; color: #111; }
   .no-print, .topbar, .guide, .foot, .toast, dialog, #btnAddPlan { display: none !important; }
   .app, .main { display: block; padding: 0; margin: 0; max-width: none; }
-  .card { box-shadow: none; border: 1px solid #d6dee8; border-radius: 6px; padding: 6px 8px; margin: 0 0 5px; break-inside: avoid; page-break-inside: avoid; }
+  .card { box-shadow: none; border: 1px solid #d6dee8; border-radius: 6px; padding: 4px 7px; margin: 0 0 3px; break-inside: avoid; page-break-inside: avoid; }
   .card-head { margin-bottom: 5px; }
   .card-head h2 { font-size: 9.4pt; padding-left: 7px; }
   .card-head h2::before { width: 2.6px; top: 1px; bottom: 1px; }
@@ -393,8 +393,8 @@ button { font-family: inherit; }
 
   /* 상담 요약은 print-head 로 대체 */
   .chart-card { margin-bottom: 4px; }
-  .chart-wrap { height: 50mm; overflow: visible; }
-  #chart { width: 100%; height: 50mm; display: block; min-width: 0; }
+  .chart-wrap { height: 31mm; overflow: visible; }
+  #chart { width: 100%; height: 31mm; display: block; min-width: 0; }
   #chart text { font-size: 9.5px; }
   .legend { gap: 8px; margin-top: 2px; }
   .legend-item { font-size: 6.6pt; }
@@ -425,7 +425,7 @@ button { font-family: inherit; }
   .cmp-table thead th, .plan-head .pname, .tag, .legend-swatch, .brand-mark, .rate-line .rate {
     -webkit-print-color-adjust: exact; print-color-adjust: exact;
   }
-  .footnote { font-size: 6.3pt; line-height: 1.45; margin-top: 4px; }
+  .footnote { font-size: 6.2pt; line-height: 1.4; margin-top: 2px; }
   .empty-note { padding: 8px; }
 }
 
@@ -744,4 +744,105 @@ body[data-tab="intl"] .tabbar { max-width: 1460px; }
   #tab-intl, #tab-ita { display: none !important; }
   #tab-compare { display: block !important; }
   .intl-card, .btn-add { break-inside: avoid; }
+}
+
+/* ================= 탭 4 : 국내 3사 대표 프리셋 ================= */
+.preset-filters {
+  display: grid; grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px; margin: 14px 0 6px;
+}
+.preset-filters .field select { width: 100%; }
+.preset-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.preset-table {
+  width: 100%; border-collapse: collapse; min-width: 900px; font-size: 12.5px;
+}
+.preset-table th, .preset-table td {
+  padding: 9px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top;
+}
+.preset-table thead th {
+  background: var(--navy); color: #eef3fa; font-size: 11px; font-weight: 600;
+  letter-spacing: .02em; position: sticky; top: 0; white-space: nowrap;
+}
+.preset-table thead th.is-key { background: #a98430; color: #fff; }
+.preset-table th.rowhead {
+  color: var(--navy); font-weight: 700; white-space: nowrap; background: #f6f8fb;
+}
+.preset-table td.num { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.preset-table td.num small { display: block; font-size: 10px; color: var(--muted); }
+.preset-table td.is-key { color: #0f1e36; font-weight: 700; }
+.preset-table td.cell-name { min-width: 190px; color: #22334d; line-height: 1.35; }
+.preset-table tr.is-na td { color: #7b8798; }
+.preset-table tbody tr:hover { background: #f3f7fd; }
+.preset-table tr.is-na:hover { background: #faf6f6; }
+.verdict { min-width: 180px; }
+.verdict-reason { display: block; margin-top: 4px; font-size: 11px; color: #8a5a44; line-height: 1.45; }
+.tag {
+  display: inline-block; padding: 2px 8px; border-radius: 999px;
+  font-size: 11px; font-weight: 700; white-space: nowrap;
+}
+.tag--ok { background: #e6f2ea; color: #1c6b41; }
+.tag--no { background: #f7e8e4; color: #9a3d22; }
+.empty-note { padding: 22px 4px; color: var(--muted); font-size: 13px; }
+
+.rules-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.rule-card { border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; background: #fbfcfe; }
+.rule-card h3 { margin: 0 0 4px; font-size: 14px; color: var(--navy); }
+.rule-card .rule-prod { margin: 0 0 8px; font-size: 11.5px; color: #5a6a80; line-height: 1.4; }
+.rule-card ul { margin: 0; padding-left: 16px; }
+.rule-card li { font-size: 12px; color: #33455e; line-height: 1.55; margin-bottom: 3px; }
+.rule-card .rule-link { margin: 8px 0 0; font-size: 12px; }
+.rule-card .rule-link a { color: #8a6a1f; font-weight: 600; text-decoration: none; }
+.rule-card .rule-link a:hover { text-decoration: underline; }
+
+/* 카카오채널 카드 */
+.kakao-card { background: linear-gradient(135deg, #fdf3d8 0%, #fffaf0 60%); border: 1px solid #ecd9a8; }
+.kakao-card-body { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.kakao-card-txt h2 { margin: 0 0 6px; font-size: 16px; color: var(--navy); }
+.kakao-card-txt p { margin: 0; font-size: 12.5px; color: #5a5044; line-height: 1.55; max-width: 60ch; }
+.kakao-card-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.kakao-card-actions .btn { text-decoration: none; display: inline-flex; align-items: center; }
+
+/* 우측 하단 상시 배지 */
+.kakao-float {
+  position: fixed; right: 18px; bottom: 18px; z-index: 40;
+  display: inline-flex; align-items: center; gap: 9px;
+  padding: 9px 14px 9px 11px; border-radius: 999px;
+  background: #fee500; color: #3c1e1e; text-decoration: none;
+  box-shadow: 0 6px 18px rgba(15, 30, 54, .22);
+  border: 1px solid #e8d200;
+}
+.kakao-float:hover { transform: translateY(-1px); box-shadow: 0 9px 22px rgba(15, 30, 54, .26); }
+.kakao-float-ico { font-size: 17px; line-height: 1; }
+.kakao-float-txt { display: flex; flex-direction: column; line-height: 1.15; }
+.kakao-float-txt b { font-size: 12px; }
+.kakao-float-txt small { font-size: 10.5px; opacity: .75; }
+
+/* 인쇄 전용 카카오채널 푸터 */
+.print-kakao { display: none; }
+
+@media (max-width: 900px) {
+  .preset-filters { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .rules-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .preset-filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .kakao-float { right: 12px; bottom: 12px; padding: 8px 12px 8px 10px; }
+  .kakao-float-txt small { display: none; }
+}
+
+/* ---------- 인쇄: 카카오채널을 리포트 하단에 ---------- */
+@media print {
+  #tab-preset { display: none !important; }
+  .kakao-float { display: none !important; }
+  .print-kakao {
+    display: flex !important; align-items: center; justify-content: space-between; gap: 8px;
+    margin: 3px 0 0; padding: 3px 8px; border-radius: 5px;
+    border: 1px solid #d9c185; background: #fdf6e4; color: #42371f;
+    break-inside: avoid; page-break-inside: avoid; line-height: 1.25;
+  }
+  .print-kakao-txt, .print-kakao-link { display: flex; align-items: baseline; gap: 5px; white-space: nowrap; }
+  .print-kakao-txt strong { font-size: 7.6pt; color: #5b4a1c; }
+  .print-kakao-txt span { font-size: 6.4pt; color: #6a5c3a; }
+  .print-kakao-link b { font-size: 8pt; color: #3f3316; }
+  .print-kakao-link span { font-size: 6.2pt; color: #6a5c3a; }
 }
