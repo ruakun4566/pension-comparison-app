@@ -443,6 +443,7 @@ button { font-family: inherit; }
   position: sticky;
   top: 0;
   z-index: 19;
+  width: 100%;
   display: flex;
   gap: 6px;
   max-width: 1460px;

@@ -7,7 +7,8 @@ import time
 from playwright.sync_api import sync_playwright
 
 PORT = 8770
-BASE = f"http://127.0.0.1:{PORT}/index.html"
+LIVE = os.environ.get("VERIFY_URL", "").strip()
+BASE = LIVE or f"http://127.0.0.1:{PORT}/index.html"
 ROOT = "/workspace/work/pension-comparison-app"
 DOCS = os.path.join(ROOT, "docs")
 
