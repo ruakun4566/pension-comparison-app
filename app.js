@@ -5,6 +5,7 @@
   'use strict';
 
   var STORE_KEY = 'ddp-pension-cmp-v1';
+  var MAX_COMPARE = 4;
   var HORIZONS = [
     { k: 'y5', label: '5년', years: 5 },
     { k: 'y10', label: '10년', years: 10 },
@@ -94,7 +95,8 @@
       caution: String(p.caution || ''),
       recommend: String(p.recommend || ''),
       color: p.color || PALETTE[i % PALETTE.length],
-      included: p.included !== false
+      included: p.included !== false,
+      sourceKey: p.sourceKey ? String(p.sourceKey) : ''
     };
   }
 
@@ -104,6 +106,7 @@
       version: 1,
       customer: { name: '', age: '', retireAge: '', date: new Date().toISOString().slice(0, 10) },
       fxRate: 1400,
+      fxAuto: true,
       plans: presets,
       chart: 'bar'
     };
@@ -118,6 +121,7 @@
       if (saved && typeof saved === 'object') {
         if (saved.customer) st.customer = Object.assign(st.customer, saved.customer);
         st.fxRate = num(saved.fxRate, 1400);
+        st.fxAuto = saved.fxAuto !== false;
         if (Array.isArray(saved.plans) && saved.plans.length) {
           st.plans = saved.plans.map(normalizePlan);
         }
@@ -172,9 +176,9 @@
       cb.addEventListener('change', function () {
         var plan = state.plans.filter(function (p) { return p.id === cb.dataset.id; })[0];
         if (!plan) return;
-        if (cb.checked && selectedPlans().length >= 4) {
+        if (cb.checked && selectedPlans().length >= MAX_COMPARE) {
           cb.checked = false;
-          toast('한 번에 최대 4개까지 비교할 수 있습니다');
+          toast('한 번에 최대 ' + MAX_COMPARE + '개까지 비교할 수 있습니다');
           return;
         }
         plan.included = cb.checked;
@@ -205,7 +209,7 @@
       table.innerHTML = '<tbody><tr><td class="empty-note">비교할 플랜을 위에서 선택하거나 <b>+ 상품 추가</b>로 새 플랜을 만들어 주세요.</td></tr></tbody>';
       return;
     }
-    var payoutBest = Math.max.apply(null, plans.map(function (p) { return p.payoutMonthly; }));
+    var payoutBest = Math.max.apply(null, plans.map(function (p) { return p.payoutMonthly || 0; }));
     var startBest = Math.max.apply(null, plans.map(function (p) { return valueAt(p, 'start'); }));
 
     var thead = '<thead><tr><th class="rowhead">항목</th>' + plans.map(function (p) {
@@ -241,6 +245,9 @@
       return '<td><div class="cell-text"><b>' + (p.startAge || '—') + '세</b> · ' + esc(p.payoutType || '종신') + '</div></td>';
     })]);
     rows.push(['예상 월 수령액', plans.map(function (p) {
+      if (!p.payoutMonthly) {
+        return '<td><div class="cell-text">— <span class="payout-sub">연금 미개시(적립형)</span></div></td>';
+      }
       var best = p.payoutMonthly === payoutBest && plans.length > 1;
       return '<td class="' + (best ? 'best' : '') + '">' +
         '<div class="payout-main">' + (p.currency === 'USD' ? esc(fmtUsd(p.payoutMonthly)) : esc(fmtWon(p.payoutMonthly))) + '</div>' +
@@ -335,7 +342,6 @@
       svg.appendChild(svgEl('line', { x1: pad.l, x2: W - pad.r, y1: y, y2: y, stroke: i === 0 ? '#c9d3e0' : '#eef2f7', 'stroke-width': 1 }));
       svg.appendChild(svgText(pad.l - 10, y + 4, axisFmt(v) + (v ? '원' : ''), { 'text-anchor': 'end', 'font-size': '10.5' }));
     }
-    svg.appendChild(svgText(pad.l - 10, pad.t - 8, '원화 환산', { 'text-anchor': 'end', 'font-size': '9.5', fill: '#9aa8bb' }));
 
     if (mode === 'payout') {
       var n = data.perPlan.length;
@@ -425,6 +431,77 @@
     renderTable();
     renderChart();
     renderPrintMeta();
+    renderTabBadge();
+  }
+
+  function renderTabBadge() {
+    var badge = $('#tabCountBadge');
+    if (badge) badge.textContent = String(selectedPlans().length);
+  }
+
+  /* ---------- tabs ---------- */
+  /*
+   * 상단 네비게이션 바로 아래 3개 메인 탭.
+   *   compare : 국내 연금 비교 대시보드 (이 파일)
+   *   intl    : 해외 유배당 4사 (intl.js)
+   *   ita     : 글로벌 자산 ITA (ita.js)
+   */
+  var activeTab = 'compare';
+  function switchTab(key) {
+    if (['compare', 'intl', 'ita'].indexOf(key) < 0) key = 'compare';
+    activeTab = key;
+    document.body.dataset.tab = key;
+    $$('.tabpanel').forEach(function (panel) { panel.hidden = panel.dataset.panel !== key; });
+    $$('#tabbar .tab').forEach(function (btn) {
+      var on = btn.dataset.tab === key;
+      btn.classList.toggle('is-on', on);
+      btn.setAttribute('aria-selected', on ? 'true' : 'false');
+    });
+    if (key === 'compare') { renderTable(); renderChart(); renderPrintMeta(); }
+    if (key === 'intl' && window.__intlTab) window.__intlTab.refresh();
+    if (key === 'ita' && window.__itaTab) window.__itaTab.refresh();
+    window.scrollTo(0, 0);
+  }
+
+  /* 다른 탭(탭2·탭3)에서 만든 상품을 이 비교표에 담는다. */
+  function addPlan(payload) {
+    if (!payload || !payload.name) return { ok: false, reason: 'no-name' };
+    var srcKey = payload.sourceKey ? String(payload.sourceKey) : '';
+    var existing = srcKey ? state.plans.filter(function (p) { return p.sourceKey === srcKey; })[0] : null;
+    if (existing) {
+      ['name', 'type', 'payoutType', 'caution', 'recommend'].forEach(function (k) {
+        if (payload[k] != null) existing[k] = String(payload[k]);
+      });
+      existing.currency = payload.currency === 'USD' ? 'USD' : 'KRW';
+      existing.monthly = num(payload.monthly);
+      existing.payYears = Math.max(1, Math.round(num(payload.payYears, 10)));
+      existing.startAge = Math.round(num(payload.startAge, 65));
+      existing.payoutMonthly = num(payload.payoutMonthly);
+      existing.rates = {
+        y5: num(payload.rates && payload.rates.y5), y10: num(payload.rates && payload.rates.y10),
+        y15: num(payload.rates && payload.rates.y15), y20: num(payload.rates && payload.rates.y20),
+        start: num(payload.rates && payload.rates.start, num(payload.rates && payload.rates.y20))
+      };
+      existing.tags = Array.isArray(payload.tags) ? payload.tags.slice(0, 6) : existing.tags;
+      // 앞서 4개 제한으로 빠져 있던 상품이면, 자리가 났을 때 다시 비교에 넣는다
+      var wasIncluded = existing.included;
+      if (!existing.included && selectedPlans().length < MAX_COMPARE) existing.included = true;
+      save(); renderAll();
+      return { ok: true, mode: wasIncluded ? 'updated' : 'added', included: existing.included,
+               name: existing.name, count: selectedPlans().length };
+    }
+    var idx = state.plans.length;
+    var included = selectedPlans().length < MAX_COMPARE;
+    var np = normalizePlan({
+      id: uid(), name: payload.name, type: payload.type, currency: payload.currency,
+      monthly: payload.monthly, payYears: payload.payYears, startAge: payload.startAge,
+      payoutType: payload.payoutType, payoutMonthly: payload.payoutMonthly, rates: payload.rates,
+      tags: payload.tags, caution: payload.caution, recommend: payload.recommend,
+      color: payload.color || PALETTE[idx % PALETTE.length], included: included, sourceKey: srcKey
+    }, idx);
+    state.plans.push(np);
+    save(); renderAll();
+    return { ok: true, mode: 'added', included: included, name: np.name, count: selectedPlans().length };
   }
 
   /* ---------- plan modal ---------- */
@@ -470,7 +547,7 @@
     if (!name) { err.textContent = '플랜명을 입력해 주세요.'; err.hidden = false; form.name.focus(); return; }
     if (!num(form.monthly.value)) { err.textContent = '월 납입액을 입력해 주세요.'; err.hidden = false; form.monthly.focus(); return; }
     if (!Math.round(num(form.payYears.value))) { err.textContent = '납입기간(년)을 입력해 주세요.'; err.hidden = false; form.payYears.focus(); return; }
-    if (!num(form.payoutMonthly.value)) { err.textContent = '예상 월 수령액을 입력해 주세요.'; err.hidden = false; form.payoutMonthly.focus(); return; }
+
 
     var tags = form.tags.value.split(/[,/·、]/).map(function (s) { return s.trim(); }).filter(Boolean);
     var rates = {
@@ -479,6 +556,7 @@
     };
     if (editingId) {
       var p = state.plans.filter(function (x) { return x.id === editingId; })[0];
+      if (p) p.sourceKey = '';
       if (p) Object.assign(p, {
         name: name, type: form.type.value.trim(), currency: form.currency.value,
         monthly: num(form.monthly.value), payYears: Math.round(num(form.payYears.value)),
@@ -706,6 +784,7 @@
     });
     $('#fxRate').addEventListener('input', function (e) {
       state.fxRate = num(e.target.value, 1400) || 1400;
+      state.fxAuto = false;
       renderTable(); renderChart(); renderPrintMeta(); save();
     });
     $$('.seg-btn').forEach(function (b) {
@@ -741,12 +820,59 @@
     [dialog, pasteDialog].forEach(function (d) {
       d.addEventListener('click', function (e) { if (e.target === d) d.close(); });
     });
-    // 디버그/외부 확인용
-    window.__pensionApp = { getState: function () { return clone(state); }, version: 1 };
+    $$('#tabbar .tab').forEach(function (btn) {
+      btn.addEventListener('click', function () { switchTab(btn.dataset.tab); });
+    });
+    // 디버그/외부 확인용 + 다른 탭에서 비교표로 담기
+    window.__pensionApp = {
+      getState: function () { return clone(state); },
+      version: 2,
+      addPlan: addPlan,
+      switchTab: switchTab,
+      activeTab: function () { return activeTab; },
+      toast: toast,
+      fxRate: function () { return fx(); }
+    };
   }
+
+  /* ---------- 공용 환율 (탭 1·2·3 공통) ---------- */
+  /*
+   * open.er-api.com 의 USD 기준 환율에 카카오뱅크 송금환율 추정치(×1.005)를 적용합니다.
+   * 조회 실패 시 1,350원을 임시값으로 사용합니다. (기존 두 시뮬레이터와 같은 방식)
+   */
+  var FX = { rate: 1350, fetched: false, date: '', fallback: 1350 };
+  window.APP_FX = FX;
+  function announceFx() {
+    document.dispatchEvent(new CustomEvent('app:fx', { detail: FX }));
+  }
+  window.addEventListener('app:fx-request', announceFx);
+  FX.subscribe = function (cb) {
+    document.addEventListener('app:fx', function () { cb(FX); });
+    cb(FX);
+  };
+  fetch('https://open.er-api.com/v6/latest/USD')
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      var krw = data && data.rates && data.rates.KRW;
+      if (!krw) throw new Error('no KRW rate');
+      FX.rate = Math.round(krw * 1.005 * 100) / 100; // 카카오뱅크 송금환율 추정
+      FX.fetched = true;
+      FX.date = new Date().toISOString().slice(0, 10);
+      if (state.fxAuto !== false) {
+        state.fxRate = Math.round(FX.rate / 10) * 10 || 1400;
+        var fxInput = $('#fxRate');
+        if (fxInput) fxInput.value = state.fxRate;
+        renderTable(); renderChart(); save();
+      }
+    })
+    .catch(function () {
+      FX.fetched = false;
+    })
+    .then(function () { announceFx(); });
 
   /* ---------- init ---------- */
   bindInputs();
   syncInputs();
   renderAll();
+  switchTab('compare');
 })();

@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>연금 비교 대시보드 | 든든파트너스 전경일 대표</title>
-<meta name="description" content="여러 연금 상품을 한 화면에서 나란히 비교하는 상담용 대시보드 · 든든파트너스 전경일 대표" />
+<title>연금·자산 통합 비교 | 든든파트너스 전경일 대표</title>
+<meta name="description" content="국내 연금·해외 유배당 4사·글로벌 자산(ITA)을 한 화면에서 비교하는 상담용 통합 대시보드 · 든든파트너스 전경일 대표" />
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230F1E36'/%3E%3Cpath d='M20 46V18h9a14 14 0 0 1 0 28h-9z' fill='none' stroke='%23C9A24D' stroke-width='5'/%3E%3C/svg%3E" />
 <link rel="stylesheet" href="styles.css" />
 </head>
@@ -17,10 +17,10 @@
         <span class="brand-mark" aria-hidden="true">D</span>
         <span class="brand-text">
           <strong>든든파트너스</strong>
-          <small>전경일 대표 · 연금 비교 대시보드</small>
+          <small>전경일 대표 · 연금·자산 통합 비교</small>
         </span>
       </div>
-      <div class="topbar-actions">
+      <div class="topbar-actions tab1-only">
         <button type="button" class="btn btn-ghost" id="btnPaste" title="엑셀·구글시트 표를 복사해 붙여넣기">
           <span class="ico">▦</span> 표 붙여넣기
         </button>
@@ -37,6 +37,23 @@
     </div>
   </header>
 
+  <!-- 3개 메인 탭 -->
+  <nav class="tabbar no-print" id="tabbar" role="tablist" aria-label="비교 영역 선택">
+    <button type="button" class="tab is-on" role="tab" aria-selected="true" data-tab="compare">
+      <span class="tab-no">1</span>
+      <span class="tab-txt"><b>한눈에 비교</b><small>국내 연금 · 상품 비교표·차트·A4 리포트</small></span>
+      <span class="tab-badge" id="tabCountBadge">4</span>
+    </button>
+    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="intl">
+      <span class="tab-no">2</span>
+      <span class="tab-txt"><b>해외 유배당 4사</b><small>Generali · Sun Life · CHUBB · AXA</small></span>
+    </button>
+    <button type="button" class="tab" role="tab" aria-selected="false" data-tab="ita">
+      <span class="tab-no">3</span>
+      <span class="tab-txt"><b>글로벌 자산 (ITA)</b><small>S&amp;P500 · EVO 적립식</small></span>
+    </button>
+  </nav>
+
   <main class="main">
 
     <!-- 인쇄용 머리말 -->
@@ -51,98 +68,278 @@
       <div class="print-head-meta" id="printMeta"></div>
     </section>
 
-    <!-- 상담 정보 + 플랜 선택 -->
-    <section class="card setup no-print">
-      <div class="card-head">
-        <h2>상담 정보</h2>
-        <span class="hint">입력한 내용은 이 브라우저에 자동 저장됩니다</span>
-      </div>
-      <div class="setup-grid">
-        <label class="field">
-          <span>고객명</span>
-          <input id="custName" type="text" placeholder="예) 김고객" autocomplete="off" />
-        </label>
-        <label class="field">
-          <span>나이</span>
-          <input id="custAge" type="number" min="0" max="120" placeholder="예) 47" />
-        </label>
-        <label class="field">
-          <span>목표 은퇴 나이</span>
-          <input id="custRetire" type="number" min="0" max="120" placeholder="예) 65" />
-        </label>
-        <label class="field">
-          <span>상담일</span>
-          <input id="custDate" type="date" />
-        </label>
-        <label class="field">
-          <span>환율 (원/$)</span>
-          <input id="fxRate" type="number" min="0" step="10" placeholder="1400" />
-        </label>
-      </div>
-      <div class="chips" id="planChips" role="group" aria-label="비교할 플랜 선택"></div>
-      <p class="hint" id="chipHint">최대 4개까지 한 번에 비교할 수 있습니다.</p>
-    </section>
+    <!-- ================= 탭 1 ================= -->
+    <div class="tabpanel" id="tab-compare" role="tabpanel" data-panel="compare">
 
-    <!-- 차트 -->
-    <section class="card chart-card">
-      <div class="card-head">
-        <h2>시점별 예상 적립금 · 수령액</h2>
-        <div class="seg no-print" role="group" aria-label="차트 종류">
-          <button type="button" class="seg-btn is-on" data-chart="bar">막대 · 적립금</button>
-          <button type="button" class="seg-btn" data-chart="line">라인 · 적립 추이</button>
-          <button type="button" class="seg-btn" data-chart="payout">막대 · 월 수령액</button>
+      <!-- 상담 정보 + 플랜 선택 -->
+      <section class="card setup no-print">
+        <div class="card-head">
+          <h2>상담 정보</h2>
+          <span class="hint">입력한 내용은 이 브라우저에 자동 저장됩니다</span>
         </div>
-      </div>
-      <div class="chart-wrap">
-        <svg id="chart" viewBox="0 0 900 360" preserveAspectRatio="xMidYMid meet" role="img" aria-label="시점별 적립금 비교 차트"></svg>
-      </div>
-      <div class="legend" id="legend"></div>
-      <p class="hint" id="chartNote">막대는 각 시점 누적 납입원금에 해지환급률을 적용한 예상 적립금(환급금)입니다. 달러 상품은 입력한 환율로 원화 환산해 표시합니다.</p>
-    </section>
+        <div class="setup-grid">
+          <label class="field">
+            <span>고객명</span>
+            <input id="custName" type="text" placeholder="예) 김고객" autocomplete="off" />
+          </label>
+          <label class="field">
+            <span>나이</span>
+            <input id="custAge" type="number" min="0" max="120" placeholder="예) 47" />
+          </label>
+          <label class="field">
+            <span>목표 은퇴 나이</span>
+            <input id="custRetire" type="number" min="0" max="120" placeholder="예) 65" />
+          </label>
+          <label class="field">
+            <span>상담일</span>
+            <input id="custDate" type="date" />
+          </label>
+          <label class="field">
+            <span>환율 (원/$)</span>
+            <input id="fxRate" type="number" min="0" step="10" placeholder="1400" />
+          </label>
+        </div>
+        <div class="chips" id="planChips" role="group" aria-label="비교할 플랜 선택"></div>
+        <p class="hint" id="chipHint">최대 4개까지 한 번에 비교할 수 있습니다.</p>
+      </section>
 
-    <!-- 비교 표 -->
-    <section class="card table-card">
-      <div class="card-head">
-        <h2>한눈에 비교</h2>
-        <span class="hint no-print">열 제목을 누르면 해당 플랜을 편집할 수 있습니다</span>
-      </div>
-      <div class="table-scroll">
-        <table id="cmpTable" class="cmp-table"></table>
-      </div>
+      <!-- 차트 -->
+      <section class="card chart-card">
+        <div class="card-head">
+          <h2>시점별 예상 적립금 · 수령액</h2>
+          <div class="seg no-print" role="group" aria-label="차트 종류">
+            <button type="button" class="seg-btn is-on" data-chart="bar">막대 · 적립금</button>
+            <button type="button" class="seg-btn" data-chart="line">라인 · 적립 추이</button>
+            <button type="button" class="seg-btn" data-chart="payout">막대 · 월 수령액</button>
+          </div>
+        </div>
+        <div class="chart-wrap">
+          <svg id="chart" viewBox="0 0 900 360" preserveAspectRatio="xMidYMid meet" role="img" aria-label="시점별 적립금 비교 차트"></svg>
+        </div>
+        <div class="legend" id="legend"></div>
+        <p class="hint" id="chartNote">막대는 각 시점 누적 납입원금에 해지환급률을 적용한 예상 적립금(환급금)입니다. 달러 상품은 입력한 환율로 원화 환산해 표시합니다.</p>
+      </section>
+
+      <!-- 비교 표 -->
+      <section class="card table-card">
+        <div class="card-head">
+          <h2>한눈에 비교</h2>
+          <span class="hint no-print">열 제목을 누르면 해당 플랜을 편집할 수 있습니다</span>
+        </div>
+        <div class="table-scroll">
+          <table id="cmpTable" class="cmp-table"></table>
+        </div>
+        <p class="footnote">
+          ※ 본 화면의 수치는 <strong>화면 구성용 예시값</strong>이며 실제 상품의 공시 수치·약관이 아닙니다.
+          상담 시에는 해당 상품의 가입설계서·공시 자료를 기준으로 다시 확인해 주세요.
+          해지환급률과 예상 수령액은 납입 시점·운용수익·공시이율에 따라 달라질 수 있습니다.
+        </p>
+      </section>
+
+      <!-- 안내 -->
+      <section class="card guide no-print">
+        <div class="card-head">
+          <h2>이 앱에 넣을 자료 · 편하게 쓰는 방법</h2>
+          <button type="button" class="btn btn-mini" id="btnReset">샘플 데이터로 초기화</button>
+        </div>
+        <ol class="guide-list">
+          <li><strong>표 붙여넣기(가장 편함)</strong> — 구글시트·엑셀에서 아래 열 순서대로 값만 복사해 <em>표 붙여넣기</em>를 누르면 한 번에 등록됩니다.</li>
+          <li><strong>상품 추가 / 편집</strong> — 상품 하나씩 폼으로 입력·수정. 상담 중 고객 조건에 맞춰 바로 바꿀 수 있습니다.</li>
+          <li><strong>탭 2 · 탭 3에서 담기</strong> — 해외 유배당 4사·글로벌 자산(ITA) 카드의 <em>+ 비교표에 담기</em>를 누르면 이 비교표에 자동으로 상품이 추가됩니다.</li>
+          <li><strong>JSON</strong> — 상품 묶음을 파일로 저장해 두었다가 다른 기기에서 불러올 수 있습니다.</li>
+          <li><strong>A4 리포트 / PDF</strong> — 고객에게 보여줄 1장 요약본. 브라우저 인쇄 창에서 ‘PDF로 저장’을 선택하세요.</li>
+        </ol>
+        <details class="paste-guide">
+          <summary>붙여넣기 열 순서 보기</summary>
+          <div class="paste-cols">
+            <code>플랜명</code><code>상품유형</code><code>통화</code><code>월납입액</code><code>납입기간</code>
+            <code>5년환급률</code><code>10년환급률</code><code>15년환급률</code><code>20년환급률</code><code>개시환급률</code>
+            <code>개시나이</code><code>월수령액</code><code>태그</code><code>유의사항</code><code>추천대상</code>
+          </div>
+          <p class="hint">첫 줄은 머리글로 인식합니다. 없는 열은 비워 두면 됩니다. 예) <code>IRP예시 · IRP · KRW · 500000 · 10 · 96 · 103 · 112 · 122 · 122 · 65 · 230000 · 세액공제/비과세</code></p>
+        </details>
+      </section>
+
+      <footer class="foot no-print">
+        <span>든든파트너스 · 전경일 대표 · 연금·자산 통합 비교</span>
+        <span>서버 없이 동작하는 정적 웹앱 · 입력값은 이 브라우저에만 저장</span>
+      </footer>
+    </div>
+
+    <!-- ================= 탭 2 : 해외 유배당 4사 ================= -->
+    <div class="tabpanel" id="tab-intl" role="tabpanel" data-panel="intl" hidden>
+
+      <section class="card no-print">
+        <div class="card-head">
+          <h2>가입 조건 설정</h2>
+          <span class="hint" id="intlRateLabel">적용 환율 불러오는 중…</span>
+        </div>
+
+        <div class="seg" id="intlMode" role="group" aria-label="계산 방식">
+          <button type="button" class="seg-btn is-on" data-mode="forward">정산 · 가입금액 기준</button>
+          <button type="button" class="seg-btn" data-mode="reverse">역산 · 원화예산 기준</button>
+        </div>
+
+        <div class="intl-inputs">
+          <label class="field" id="intlPremiumWrap">
+            <span>연간 보험료 (USD)</span>
+            <input id="intlPremium" type="text" inputmode="numeric" value="50,000" autocomplete="off" />
+          </label>
+          <label class="field" id="intlBudgetWrap" hidden>
+            <span>총 납입 예산 (원화 KRW)</span>
+            <input id="intlBudget" type="text" inputmode="numeric" value="100,000,000" autocomplete="off" />
+          </label>
+
+          <div class="field">
+            <span>납입 기간</span>
+            <div class="seg seg--sm" id="intlTerm" role="group" aria-label="납입 기간">
+              <button type="button" class="seg-btn is-on" data-term="2">2년납</button>
+              <button type="button" class="seg-btn" data-term="5">5년납</button>
+            </div>
+          </div>
+
+          <label class="field">
+            <span>인출 시나리오</span>
+            <select id="intlWithdrawal">
+              <option value="none" selected>거치 (인출 안함)</option>
+              <option value="5yr">5년말 후</option>
+              <option value="10yr">10년말 후</option>
+              <option value="20yr">20년말 후</option>
+            </select>
+          </label>
+
+          <div class="field">
+            <span>적용 환율</span>
+            <div class="seg seg--sm" id="intlRateMode" role="group" aria-label="환율 설정">
+              <button type="button" class="seg-btn is-on" data-rate="auto">자동</button>
+              <button type="button" class="seg-btn" data-rate="manual">직접 입력</button>
+            </div>
+          </div>
+
+          <label class="field" id="intlManualWrap" hidden>
+            <span>환율 (원 / 1 USD)</span>
+            <input id="intlRateManual" type="text" inputmode="numeric" value="1,350" autocomplete="off" />
+          </label>
+
+          <label class="check check--box" id="intlPrepayWrap">
+            <input type="checkbox" id="intlPrepay" checked />
+            <span>전액 선납 적용 <em>(Pre-payment)</em></span>
+          </label>
+        </div>
+
+        <div class="summary-strip">
+          <div class="summary-item">
+            <span id="intlSummaryLabel">총 명목 가입금액</span>
+            <b id="intlSummaryValue">$0</b>
+          </div>
+          <div class="summary-item">
+            <span>적용 프로모션</span>
+            <b id="intlQuarterLabel">2026년 4분기</b>
+          </div>
+          <button type="button" class="btn btn-mini" id="intlQuarterBtn">⚙ 분기 프로모션 수정</button>
+        </div>
+
+        <p class="hint">
+          전액 선납 체크 시 납입기간 전체 보험료를 미리 내고 선납 이자(할인)를 적용합니다.
+          IA Levy는 연 보험료의 0.1%(HKD 100 한도, 약 $12.8)로 계산합니다.
+        </p>
+      </section>
+
+      <div class="intl-cards" id="intlGrid"></div>
+
       <p class="footnote">
-        ※ 본 화면의 수치는 <strong>화면 구성용 예시값</strong>이며 실제 상품의 공시 수치·약관이 아닙니다.
-        상담 시에는 해당 상품의 가입설계서·공시 자료를 기준으로 다시 확인해 주세요.
-        해지환급률과 예상 수령액은 납입 시점·운용수익·공시이율에 따라 달라질 수 있습니다.
+        ※ 표의 환급금·환급률·IRR은 보험사 설계서 기준값(가입금액 10만 달러당 지급 비율)을 바탕으로 한
+        <strong>상담용 예시</strong>입니다. 실제 지급액은 가입 시점의 환율·설계서·약관에 따라 달라질 수 있습니다.
+        AXA WealthAhead II는 2년납 전용으로, 5년납 비교에서는 제외됩니다.
       </p>
-    </section>
+    </div>
 
-    <!-- 안내 -->
-    <section class="card guide no-print">
-      <div class="card-head">
-        <h2>이 앱에 넣을 자료 · 편하게 쓰는 방법</h2>
-        <button type="button" class="btn btn-mini" id="btnReset">샘플 데이터로 초기화</button>
-      </div>
-      <ol class="guide-list">
-        <li><strong>표 붙여넣기(가장 편함)</strong> — 구글시트·엑셀에서 아래 열 순서대로 값만 복사해 <em>표 붙여넣기</em>를 누르면 한 번에 등록됩니다.</li>
-        <li><strong>상품 추가 / 편집</strong> — 상품 하나씩 폼으로 입력·수정. 상담 중 고객 조건에 맞춰 바로 바꿀 수 있습니다.</li>
-        <li><strong>JSON</strong> — 상품 묶음을 파일로 저장해 두었다가 다른 기기에서 불러올 수 있습니다.</li>
-        <li><strong>A4 리포트 / PDF</strong> — 고객에게 보여줄 1장 요약본. 브라우저 인쇄 창에서 ‘PDF로 저장’을 선택하세요.</li>
-      </ol>
-      <details class="paste-guide">
-        <summary>붙여넣기 열 순서 보기</summary>
-        <div class="paste-cols">
-          <code>플랜명</code><code>상품유형</code><code>통화</code><code>월납입액</code><code>납입기간</code>
-          <code>5년환급률</code><code>10년환급률</code><code>15년환급률</code><code>20년환급률</code><code>개시환급률</code>
-          <code>개시나이</code><code>월수령액</code><code>태그</code><code>유의사항</code><code>추천대상</code>
+    <!-- ================= 탭 3 : 글로벌 자산 (ITA) ================= -->
+    <div class="tabpanel" id="tab-ita" role="tabpanel" data-panel="ita" hidden>
+
+      <section class="card no-print">
+        <div class="card-head">
+          <h2>글로벌 자산 계산기</h2>
+          <span class="hint" id="itaRateLabel">적용 환율 불러오는 중…</span>
         </div>
-        <p class="hint">첫 줄은 머리글로 인식합니다. 없는 열은 비워 두면 됩니다. 예) <code>IRP예시 · IRP · KRW · 500000 · 10 · 96 · 103 · 112 · 122 · 122 · 65 · 230000 · 세액공제/비과세</code></p>
-      </details>
-    </section>
 
-    <footer class="foot no-print">
-      <span>든든파트너스 · 전경일 대표 · 연금 비교 대시보드</span>
-      <span>서버 없이 동작하는 정적 웹앱 · 입력값은 이 브라우저에만 저장</span>
-    </footer>
+        <div class="seg" id="itaProduct" role="group" aria-label="상품 선택">
+          <button type="button" class="seg-btn is-on" data-product="sp500">ITA S&amp;P500</button>
+          <button type="button" class="seg-btn" data-product="evo">ITA EVO</button>
+        </div>
+
+        <div class="ita-inputs">
+          <label class="field">
+            <span>월 납입액 (원화)</span>
+            <input id="itaKrw" type="text" inputmode="numeric" value="690,000" autocomplete="off" />
+          </label>
+          <label class="field">
+            <span>월 납입액 (USD)</span>
+            <input id="itaUsd" type="text" inputmode="numeric" value="" autocomplete="off" />
+          </label>
+          <div class="field field--quick">
+            <span>빠른 금액</span>
+            <div class="quick-row" id="itaQuick"></div>
+          </div>
+        </div>
+        <p class="hint" id="itaMinHint">최소 $200부터, $100 단위</p>
+
+        <div class="field field--terms">
+          <span>납입 기간</span>
+          <div class="seg seg--sm" id="itaTerms" role="group" aria-label="납입 기간"></div>
+        </div>
+
+        <div class="rate-block">
+          <div class="rate-head">
+            <span>목표 연평균 수익률</span>
+            <div class="rate-value"><input id="itaRateInput" type="number" min="0" max="50" step="0.5" value="10" /> <em>%</em></div>
+          </div>
+          <input id="itaRateSlider" class="rate-slider" type="range" min="0" max="30" step="0.5" value="10" />
+          <div class="preset-row" id="itaPresets">
+            <button type="button" class="preset-btn" data-rate="7">보수적 7%</button>
+            <button type="button" class="preset-btn is-on" data-rate="10">평균 10%</button>
+            <button type="button" class="preset-btn" data-rate="15">적극적 15%</button>
+          </div>
+        </div>
+
+        <p class="form-error" id="itaError" hidden></p>
+      </section>
+
+      <section class="card" id="itaResult">
+        <div class="card-head">
+          <h2 id="itaResultTitle">예상 적립 결과</h2>
+          <button type="button" class="btn btn-gold btn-add" id="itaAdd">+ 비교표에 담기</button>
+        </div>
+
+        <div class="ita-summary" id="itaSummary"></div>
+        <div class="ita-guarantee" id="itaGuarantee"></div>
+
+        <div class="chart-wrap ita-chart-wrap">
+          <svg id="itaChart" viewBox="0 0 900 320" preserveAspectRatio="xMidYMid meet" role="img" aria-label="연도별 자산 성장 추이"></svg>
+        </div>
+        <div class="legend" id="itaLegend"></div>
+
+        <div class="table-scroll ita-table-scroll">
+          <table class="ita-table" id="itaTable"></table>
+        </div>
+        <p class="hint ita-note">
+          매월 납입·월복리로 계산합니다(FV = 월납입 × ((1+r)ⁿ−1)/r, r = 연수익률/12).
+          적립식은 납입 초기에 원금이 굴러가는 기간이 짧아 원금 대비 누적 수익률이 목표 수익률보다 낮게 보이지만,
+          기간이 길어질수록 복리 효과가 누적됩니다.
+        </p>
+      </section>
+
+      <details class="card adv no-print">
+        <summary>상품 장점 자세히 보기</summary>
+        <div class="advantages" id="itaAdvantages"></div>
+      </details>
+
+      <p class="footnote">
+        ※ 목표 수익률은 고객이 설정한 가정값이며 보장 수익률이 아닙니다. S&amp;P500의 최소보증은 만기 시점 원금 비율(10년 100%·15년 140%)이며,
+        ITA EVO는 최소보증이 없습니다. 실제 결과는 시장 상황·환율에 따라 달라집니다.
+      </p>
+    </div>
+
   </main>
 </div>
 
@@ -165,10 +362,10 @@
         <label class="field"><span>연금 개시 나이</span><input name="startAge" type="number" min="40" max="100" step="1" placeholder="65" /></label>
         <label class="field"><span>수령 방식</span>
           <select name="payoutType">
-            <option>종신</option><option>확정 20년</option><option>확정 10년</option><option>종신(연금전환)</option><option>거치 후 종신</option>
+            <option>종신</option><option>확정 20년</option><option>확정 10년</option><option>종신(연금전환)</option><option>거치 후 종신</option><option>적립형(연금 미개시)</option>
           </select>
         </label>
-        <label class="field"><span>예상 월 수령액 *</span><input name="payoutMonthly" type="number" min="0" step="1000" required placeholder="230000" /></label>
+        <label class="field"><span>예상 월 수령액</span><input name="payoutMonthly" type="number" min="0" step="1000" placeholder="230000" /></label>
       </div>
 
       <div class="form-section">
@@ -221,11 +418,90 @@
   </form>
 </dialog>
 
+<!-- 분기 프로모션 수정 모달 (탭 2) -->
+<dialog id="promoDialog" class="dialog dialog--wide">
+  <form id="promoForm" method="dialog">
+    <header class="dialog-head">
+      <h3>분기 프로모션 설정</h3>
+      <button type="button" class="icon-btn" id="btnClosePromo" aria-label="닫기">✕</button>
+    </header>
+    <div class="dialog-body">
+      <p class="hint">선택한 분기의 프로모션 값이 시뮬레이션에 적용되며, 제목에도 표시됩니다. 수정한 값은 이 브라우저에만 저장됩니다.</p>
+      <div class="promo-period">
+        <label class="field"><span>연도</span><input id="promoYear" type="number" min="2024" max="2035" step="1" value="2026" /></label>
+        <label class="field"><span>분기</span>
+          <select id="promoQuarter">
+            <option value="1">1분기</option><option value="2">2분기</option>
+            <option value="3">3분기</option><option value="4">4분기</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="promo-group">
+        <h4>Generali · Lion Achiever Elite</h4>
+        <div class="promo-fields">
+          <label class="field"><span>2년납 50만↑ (%)</span><input id="gen-2y-50" type="number" step="0.1" /></label>
+          <label class="field"><span>2년납 5만↑ (%)</span><input id="gen-2y-5" type="number" step="0.1" /></label>
+          <label class="field"><span>2년납 기본 (%)</span><input id="gen-2y-base" type="number" step="0.1" /></label>
+          <label class="field"><span>5년납 20만↑ (%)</span><input id="gen-5y-20" type="number" step="0.1" /></label>
+          <label class="field"><span>5년납 기본 (%)</span><input id="gen-5y-base" type="number" step="0.1" /></label>
+          <label class="field"><span>선납 이자율 (%)</span><input id="gen-prepay" type="number" step="0.1" /></label>
+        </div>
+      </div>
+
+      <div class="promo-group">
+        <h4>Sun Life · SunJoy Global II</h4>
+        <div class="promo-fields">
+          <label class="field"><span>2년납 20만↑ (%)</span><input id="sun-2y-20" type="number" step="0.1" /></label>
+          <label class="field"><span>2년납 10만↑ (%)</span><input id="sun-2y-10" type="number" step="0.1" /></label>
+          <label class="field"><span>2년납 기본 (%)</span><input id="sun-2y-base" type="number" step="0.1" /></label>
+          <label class="field"><span>5년납 100만↑ (%)</span><input id="sun-5y-100" type="number" step="0.1" /></label>
+          <label class="field"><span>5년납 20만↑ (%)</span><input id="sun-5y-20" type="number" step="0.1" /></label>
+          <label class="field"><span>5년납 10만↑ (%)</span><input id="sun-5y-10" type="number" step="0.1" /></label>
+          <label class="field"><span>5년납 5만↑ (%)</span><input id="sun-5y-5" type="number" step="0.1" /></label>
+          <label class="field"><span>5년납 3만↑ (%)</span><input id="sun-5y-3" type="number" step="0.1" /></label>
+          <label class="field"><span>5년납 기본 (%)</span><input id="sun-5y-base" type="number" step="0.1" /></label>
+          <label class="field"><span>선납 1년차 (%)</span><input id="sun-prepay-1" type="number" step="0.1" /></label>
+          <label class="field"><span>선납 3~5년차 (%)</span><input id="sun-prepay-2" type="number" step="0.1" /></label>
+        </div>
+      </div>
+
+      <div class="promo-group">
+        <h4>CHUBB · MyLegacy Plan V</h4>
+        <div class="promo-fields">
+          <label class="field"><span>2년납 1년차 (%)</span><input id="chubb-2y" type="number" step="0.1" /></label>
+          <label class="field"><span>2년납 선납 추가 (%)</span><input id="chubb-2y-add" type="number" step="0.1" /></label>
+          <label class="field"><span>5년납 매년 (%)</span><input id="chubb-5y" type="number" step="0.1" /></label>
+          <label class="field"><span>2년납 선납이자 (%)</span><input id="chubb-prepay" type="number" step="0.1" /></label>
+          <label class="field"><span>5년납 선납이자 (%)</span><input id="chubb-5y-prepay" type="number" step="0.1" /></label>
+        </div>
+      </div>
+
+      <div class="promo-group">
+        <h4>AXA · WealthAhead II <small>(2년납 전용 · 선납 FPDA 보너스 이자)</small></h4>
+        <div class="promo-fields">
+          <label class="field"><span>연납 20만↑ (%)</span><input id="axa-2y-20" type="number" step="0.1" /></label>
+          <label class="field"><span>연납 20만 미만 (%)</span><input id="axa-2y-base" type="number" step="0.1" /></label>
+        </div>
+      </div>
+      <p class="hint">AXA는 보너스 이자가 할인이 아니라 캐시백(FPDA)으로 지급되는 구조라 총 납입액은 줄지 않습니다.</p>
+    </div>
+    <footer class="dialog-foot">
+      <button type="button" class="btn btn-danger-ghost" id="btnPromoReset">분기 기본값 복구</button>
+      <span class="spacer"></span>
+      <button type="button" class="btn btn-ghost" id="btnCancelPromo">취소</button>
+      <button type="submit" class="btn btn-primary" id="btnSavePromo">저장 및 적용</button>
+    </footer>
+  </form>
+</dialog>
+
 <input type="file" id="jsonFile" accept="application/json,.json" hidden />
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="data.js"></script>
 <script src="app.js"></script>
+<script src="intl.js"></script>
+<script src="ita.js"></script>
 </body>
 </html>
