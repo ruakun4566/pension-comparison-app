@@ -24,6 +24,12 @@ DOCS = os.path.join(ROOT, "docs")
 os.makedirs(SHOT, exist_ok=True)
 os.makedirs(DOCS, exist_ok=True)
 
+PRESET = json.load(open(os.path.join(ROOT, "data", "presets.json"), encoding="utf-8"))
+PROWS = PRESET["rows"]
+P_OK = sum(1 for r in PROWS if r["status"] == "ok")
+P_OK_KDB = sum(1 for r in PROWS if r["status"] == "ok" and r["company"] == "kdb")
+P_NA_KDB = sum(1 for r in PROWS if r["status"] == "na" and r["company"] == "kdb")
+
 results = []
 
 
@@ -273,7 +279,7 @@ def main():
             page.click('#tabbar .tab[data-tab="preset"]')
             page.wait_for_timeout(500)
             check("탭4 패널 표시", page.locator("#tab-preset").is_visible())
-            check("탭4 행 41건", page.locator("#presetTableWrap tbody tr").count() == 41,
+            check(f"탭4 실측 행 {P_OK}건", page.locator("#presetTableWrap tbody tr").count() == P_OK,
                   page.locator("#presetTableWrap tbody tr").count())
             heads4 = page.locator("#presetTableWrap thead th").all_inner_texts()
             check("탭4 수령액 열 존재(값 있는 행 있음)", "예상 연 수령액" in heads4, heads4)
@@ -285,17 +291,21 @@ def main():
             # 회사 필터 + 불가 표시
             page.select_option("#presetCompany", "kdb")
             page.wait_for_timeout(250)
-            check("KDB 필터 28건", page.locator("#presetTableWrap tbody tr").count() == 28,
+            check(f"KDB 실측 필터 {P_OK_KDB}건", page.locator("#presetTableWrap tbody tr").count() == P_OK_KDB,
                   page.locator("#presetTableWrap tbody tr").count())
             page.select_option("#presetStatus", "na")
             page.wait_for_timeout(250)
-            check("KDB 불가 1건", page.locator("#presetTableWrap tbody tr").count() == 1)
+            check(f"KDB 불가 {P_NA_KDB}건", page.locator("#presetTableWrap tbody tr").count() == P_NA_KDB,
+                  page.locator("#presetTableWrap tbody tr").count())
             na_txt = page.locator("#presetTableWrap tbody").inner_text()
             check("불가 사유 노출", "보험나이+납입기간+5" in na_txt, na_txt[:120])
             heads_na = page.locator("#presetTableWrap thead th").all_inner_texts()
             check("불가만 볼 때 수령액 열 자체가 사라짐", "예상 연 수령액" not in heads_na, heads_na)
             page.select_option("#presetCompany", "all")
             page.select_option("#presetStatus", "all")
+            page.wait_for_timeout(300)
+            # 1,000행이 넘는 전체 표는 full_page 캡처가 실패하므로 기본 화면(실측만)으로 되돌려 캡처
+            page.select_option("#presetStatus", "ok")
             page.wait_for_timeout(300)
             page.screenshot(path=os.path.join(SHOT, "16-tab4-프리셋.png"), full_page=True)
 
@@ -353,7 +363,7 @@ def main():
             mp.wait_for_timeout(500)
             check("모바일 탭4 가로 스크롤 없음", mp.evaluate("document.documentElement.scrollWidth") <= 400,
                   mp.evaluate("document.documentElement.scrollWidth"))
-            check("모바일 탭4 행 41건", mp.locator("#presetTableWrap tbody tr").count() == 41)
+            check(f"모바일 탭4 실측 행 {P_OK}건", mp.locator("#presetTableWrap tbody tr").count() == P_OK)
             check("모바일 플로팅 카카오", mp.locator("#kakaoFloat").is_visible())
             mp.screenshot(path=os.path.join(SHOT, "17-mobile-tab4.png"), full_page=True)
             m.close()

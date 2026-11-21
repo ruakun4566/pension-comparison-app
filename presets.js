@@ -12,7 +12,8 @@
 
   var DATA = window.PRESET_DATA || { meta: {}, companies: {}, rows: [] };
   var rows = (DATA.rows || []).slice();
-  var state = { company: 'all', premium: 'all', term: 'all', join: 'all', start: 'all', status: 'all' };
+  /* 처음 열 때는 실제 금액이 산출된 설계만 보여 준다(불가 판정 행이 수백 건이라 기본 화면에서 제외). */
+  var state = { company: 'all', premium: 'all', term: 'all', join: 'all', start: 'all', status: 'ok' };
 
   function $(sel, root) { return (root || document).querySelector(sel); }
   function $$(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
@@ -59,6 +60,7 @@
     fillSelect(sSel, function (v) { return v + '세 개시'; },
       uniq(rows.map(function (r) { return r.start; })).sort(sortNum), '개시나이 전체');
     fillSelect(stSel, function (v) { return v === 'ok' ? '가입 가능(금액 산출)' : '가입 불가'; }, ['ok', 'na'], '상태 전체');
+    stSel.value = state.status;
 
     [[cSel, 'company'], [pSel, 'premium'], [tSel, 'term'], [jSel, 'join'], [sSel, 'start'], [stSel, 'status']].forEach(function (pair) {
       pair[0].addEventListener('change', function () {
@@ -164,12 +166,15 @@
     if (!host) return;
     var okCount = list.filter(function (r) { return r.status === 'ok'; }).length;
     var naCount = list.length - okCount;
+    var cov = DATA.meta.coverage || null;
     host.innerHTML = ''
       + '<div class="summary-item"><span>조회 기준</span><b>' + DATA.meta.gender + ' · 보험나이 기준(만 나이+1)</b></div>'
       + '<div class="summary-item"><span>대상 3사</span><b>IBK · KDB · iM</b></div>'
       + '<div class="summary-item"><span>조회일</span><b>' + DATA.meta.queriedAt + '</b></div>'
       + '<div class="summary-item"><span>표시 설계</span><b>' + list.length + '건</b></div>'
-      + '<div class="summary-item"><span>가능 / 불가</span><b>' + okCount + ' · ' + naCount + '</b></div>';
+      + '<div class="summary-item"><span>가능 / 불가</span><b>' + okCount + ' · ' + naCount + '</b></div>'
+      + (cov ? '<div class="summary-item"><span>3사 2,160조합 진행</span><b>' + cov.judged.toLocaleString('ko-KR')
+          + ' / ' + cov.gridTotal.toLocaleString('ko-KR') + ' (' + cov.percent + '%)</b></div>' : '');
   }
 
   function render() {
