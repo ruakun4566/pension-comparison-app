@@ -152,7 +152,9 @@ def main():
     old = json.load(open(os.path.join(HERE, "presets.json")))
     for r in old.get("rows", []):
         r = dict(r)
-        r.setdefault("basis", "measured")
+        r.setdefault("basis", "measured" if r.get("status") == "ok" else "calculator-refusal")
+        if r.get("status") != "ok" and r.get("basis") == "measured":
+            r["basis"] = "calculator-refusal"
         measured.append(r)
 
     # 중복 제거: 실측(ok) 우선, 값이 더 많은 행 우선

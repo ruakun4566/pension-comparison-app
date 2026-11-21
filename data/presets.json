@@ -10,10 +10,10 @@
    "gridTotal": 2160,
    "measuredOk": 74,
    "ruleNa": 1070,
-   "calculatorNa": 6,
+   "calculatorNa": 7,
    "pending": 1009,
-   "judged": 1150,
-   "percent": 53.2
+   "judged": 1151,
+   "percent": 53.3
   }
  },
  "companies": {
@@ -16235,7 +16235,7 @@
    "status": "na",
    "reason": "계산기 산출값이 0원 — 20년납(41~61세) 후 65세 개시는 최소 거치기간을 못 채워 설계 불가",
    "queriedAt": "2026-11-21",
-   "basis": "measured"
+   "basis": "calculator-refusal"
   },
   {
    "company": "im",
