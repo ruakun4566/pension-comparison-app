@@ -38,6 +38,10 @@ def main():
             pg.wait_for_timeout(600)
             pg.screenshot(path=os.path.join(DOCS, "screenshot-tab3-ita.png"), full_page=True)
 
+            pg.click('#tabbar .tab[data-tab="lumpsum"]')
+            pg.wait_for_timeout(700)
+            pg.screenshot(path=os.path.join(DOCS, "screenshot-tab5-lumpsum.png"), full_page=True)
+
             # 통합 사례: 기본 2개를 빼고 해외 4사·ITA 상품을 담아 4개 비교 → A4 리포트
             pg.click('#tabbar .tab[data-tab="compare"]')
             pg.wait_for_timeout(300)
@@ -78,6 +82,9 @@ def main():
             mp.click('#tabbar .tab[data-tab="intl"]')
             mp.wait_for_timeout(600)
             mp.screenshot(path=os.path.join(DOCS, "screenshot-mobile-tab2.png"), full_page=True)
+            mp.click('#tabbar .tab[data-tab="lumpsum"]')
+            mp.wait_for_timeout(700)
+            mp.screenshot(path=os.path.join(DOCS, "screenshot-mobile-tab5.png"), full_page=True)
             print("scrollW:", mp.evaluate("document.documentElement.scrollWidth"))
             b.close()
     finally:

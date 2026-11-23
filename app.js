@@ -445,10 +445,12 @@
    *   compare : 국내 연금 비교 대시보드 (이 파일)
    *   intl    : 해외 유배당 4사 (intl.js)
    *   ita     : 글로벌 자산 ITA (ita.js)
+   *   preset  : 국내 3사 프리셋 (presets.js)
+   *   lumpsum : 일시납 연금 비교 (lumpsum.js)
    */
   var activeTab = 'compare';
   function switchTab(key) {
-    if (['compare', 'intl', 'ita', 'preset'].indexOf(key) < 0) key = 'compare';
+    if (['compare', 'intl', 'ita', 'preset', 'lumpsum'].indexOf(key) < 0) key = 'compare';
     activeTab = key;
     document.body.dataset.tab = key;
     $$('.tabpanel').forEach(function (panel) { panel.hidden = panel.dataset.panel !== key; });
@@ -461,6 +463,7 @@
     if (key === 'intl' && window.__intlTab) window.__intlTab.refresh();
     if (key === 'ita' && window.__itaTab) window.__itaTab.refresh();
     if (key === 'preset' && window.__presetTab) window.__presetTab.refresh();
+    if (key === 'lumpsum' && window.__lumpsumTab) window.__lumpsumTab.refresh();
     window.scrollTo(0, 0);
   }
 

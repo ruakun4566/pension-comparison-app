@@ -30,6 +30,27 @@ P_OK = sum(1 for r in PROWS if r["status"] == "ok")
 P_OK_KDB = sum(1 for r in PROWS if r["status"] == "ok" and r["company"] == "kdb")
 P_NA_KDB = sum(1 for r in PROWS if r["status"] == "na" and r["company"] == "kdb")
 
+# 탭 5(일시납) 데이터 — data/lumpsum-data.js 를 그대로 읽어 기대 행 수를 계산한다
+LS = json.loads(open(os.path.join(ROOT, "data", "lumpsum-data.js"), encoding="utf-8")
+                .read().split("window.LUMPSUM_DATA = ", 1)[1].rstrip().rstrip(";"))
+LS_PRODUCTS = LS["products"]
+
+
+def ls_group(p):
+    if p["startYears"] is None or p["startYears"] == 0:
+        return "etc"
+    if p["company"].startswith("메트라이프") and p["startYears"] <= 3:
+        return "metro3"
+    if p["startYears"] <= 5:
+        return "hybrid"
+    return "etc"
+
+
+LS_HYBRID = [p for p in LS_PRODUCTS if ls_group(p) == "hybrid"]
+LS_METRO = [p for p in LS_PRODUCTS if ls_group(p) == "metro3"]
+LS_ETC = [p for p in LS_PRODUCTS if ls_group(p) == "etc"]
+LS_CARDS = len(LS["cards"])
+
 results = []
 
 
@@ -67,7 +88,7 @@ def main():
 
             # ============ 1. 탭 1 기본 ============
             check("title", "통합" in page.title(), page.title())
-            check("탭 4개", page.locator("#tabbar .tab").count() == 4)
+            check("탭 5개", page.locator("#tabbar .tab").count() == 5)
             check("기본 활성 탭 = 한눈에 비교", page.locator('#tabbar .tab[data-tab="compare"]').get_attribute("aria-selected") == "true")
             check("비교표 초기 4열", page.locator("#cmpTable thead .plan-head").count() == 4)
             check("비교표 15행", page.locator("#cmpTable tbody tr").count() == 15)
@@ -263,6 +284,7 @@ def main():
             page.evaluate("""() => {
                 localStorage.setItem('ddp-intl-v1', JSON.stringify({mode:'forward',term:5,premium:150000,budget:100000000,prepay:false,withdrawal:'20yr',rateMode:'auto',rateManual:1350,year:2026,quarter:4}));
                 localStorage.setItem('ddp-ita-v1', JSON.stringify({product:'evo',term:25,monthlyUSD:200,targetRate:15}));
+                localStorage.setItem('ddp-lumpsum-v1', JSON.stringify({principal:200000000,joinAge:52,start:'s3',pick:'ls45',filter:'metro3'}));
             }""")
             page.reload(wait_until="networkidle")
             page.wait_for_timeout(600)
@@ -271,6 +293,10 @@ def main():
             check("탭2 설정 복원", st2["term"] == 5 and st2["premium"] == 150000 and st2["withdrawal"] == "20yr", st2)
             st3 = page.evaluate("window.__itaTab.state()")
             check("탭3 설정 복원", st3["product"] == "evo" and st3["term"] == 25 and st3["targetRate"] == 15, st3)
+            st5 = page.evaluate("window.__lumpsumTab.state()")
+            check("탭5 설정 복원(원금·나이·개시·기준상품·필터)",
+                  st5["principal"] == 200000000 and st5["joinAge"] == 52 and st5["start"] == "s3"
+                  and st5["pick"] == "ls45" and st5["filter"] == "metro3", st5)
             page.click('#tabbar .tab[data-tab="intl"]')
             page.wait_for_timeout(400)
             check("복원된 탭2 5년납 3사", page.locator(".intl-card").count() == 3)
@@ -287,7 +313,8 @@ def main():
             check("탭4 카카오 홈 링크", "pf.kakao.com/_QZdWX" in page.locator('.kakao-card-actions a[data-kakao="home"]').get_attribute("href"))
             check("탭4 카카오 1:1채팅 링크", "/chat" in page.locator('.kakao-card-actions a[data-kakao="chat"]').get_attribute("href"))
             check("플로팅 카카오 배지", page.locator("#kakaoFloat").is_visible())
-            check("보험사 규칙 카드 3개", page.locator(".rule-card").count() == 3)
+            check("보험사 규칙 카드 3개", page.locator("#presetRules .rule-card").count() == 3,
+                  page.locator("#presetRules .rule-card").count())
             # 회사 필터 + 불가 표시
             page.select_option("#presetCompany", "kdb")
             page.wait_for_timeout(250)
@@ -309,11 +336,116 @@ def main():
             page.wait_for_timeout(300)
             page.screenshot(path=os.path.join(SHOT, "16-tab4-프리셋.png"), full_page=True)
 
-            # ============ 9. A4 리포트 (탭 3에서 인쇄해도 탭 1 리포트) ============
+            # ============ 8c. 탭 5 : 일시납 연금 비교 ============
+            page.click('#tabbar .tab[data-tab="lumpsum"]')
+            page.wait_for_timeout(500)
+            # 앞 단계에서 저장해 둔 탭5 설정(2억·52세·3년차)을 기본값으로 돌린다
+            page.fill("#lsJoinAge", "46")
+            page.dispatch_event("#lsJoinAge", "input")
+            page.fill("#lsPrincipal", "100,000,000")
+            page.dispatch_event("#lsPrincipal", "input")
+            page.click('#lsStart [data-start="s5"]')
+            page.select_option("#lsPick", "ls36")
+            page.click('#lsFilter [data-filter="hybrid"]')
+            page.wait_for_timeout(500)
+            check("탭5 패널 표시", page.locator("#tab-lumpsum").is_visible())
+            check("탭5 aria-selected", page.locator('#tabbar .tab[data-tab="lumpsum"]').get_attribute("aria-selected") == "true")
+            check("탭5 진입 시 탭4 숨김", not page.locator("#tab-preset").is_visible())
+            check(f"탭5 주력 카드 {LS_CARDS}개", page.locator(".ls-card").count() == LS_CARDS,
+                  page.locator(".ls-card").count())
+            sm = txt(page, "#lsSummary")
+            check("탭5 요약 1억 → 5년 적립 1억 2,980만원", "1억 2,980만원" in sm, sm)
+            check("탭5 KB 5년형 월 402,380원", "402,380원" in sm, sm)
+            check("탭5 5년차 과세 459만원", "459만원" in sm and "15.4%" in sm, sm)
+            kb_card = page.locator('.ls-card[data-id="ls36"]').inner_text()
+            check("탭5 KB 카드 129.80%·인출 60%", "129.80%" in kb_card and "60%" in kb_card, kb_card)
+            check("탭5 KB 카드 공시 환산 배지", "공시 환산" in kb_card)
+            sam_card = page.locator('.ls-card[data-id="ls13"]').inner_text()
+            check("탭5 삼성 한번에내는 실측 383,640원", "383,640원" in sam_card and "실측" in sam_card, sam_card)
+            check("탭5 실측 배지 1개", page.locator(".ls-card .ls-src.is-measured").count() == 1)
+            check(f"탭5 기본 표 {len(LS_HYBRID)}+1행(5년차 개시)",
+                  page.locator("#lsTableWrap tbody tr").count() == len(LS_HYBRID) + 1,
+                  page.locator("#lsTableWrap tbody tr").count())
+            check("탭5 표 그룹 머리글", page.locator("#lsTableWrap .ls-group-row").count() == 1)
+            heads5 = page.locator("#lsTableWrap thead th").all_inner_texts()
+            check("탭5 표 열 구성", all(k in heads5 for k in ("5년 확정이율", "예상 월 연금", "근거", "개시 가능")), heads5)
+            # 세제 카드
+            tax = txt(page, "#lsTax")
+            check("탭5 세제 카드 과세/비과세", "이자소득세" in tax and "전액 비과세" in tax, tax[:200])
+            check("탭5 세제 비과세 0원", "0원" in tax)
+            check("탭5 중도인출 vs 해지 안내", "과세이연" in tax and "해지 = 즉시 과세" in tax)
+            wd = txt(page, "#lsWithdraw")
+            check("탭5 중도인출 60% = 7,788만원", "7,788만원" in wd, wd)
+            check("탭5 잔액 5,192만원", "5,192만원" in wd, wd)
+            # 탭 ①과 나란히 비교
+            check("탭5 탭① 비교 행 5개(기준+4)", page.locator("#lsVsWrap tbody tr").count() == 5,
+                  page.locator("#lsVsWrap tbody tr").count())
+            check("탭5 비교 기준행 강조", page.locator("#lsVsWrap tr.is-mine").count() == 1)
+            check("탭5 비교 요약", "배" in txt(page, "#lsVsNote"), txt(page, "#lsVsNote")[:120])
+            # 보험사별 조건
+            check("탭5 보험사 조건 카드 4개", page.locator("#lsRules .rule-card").count() == 4)
+            # 전체 98종
+            page.click("#tab-lumpsum details.adv > summary")
+            page.wait_for_timeout(300)
+            check("탭5 전체 98종 표", page.locator("#lsAllWrap tbody tr").count() == len(LS_PRODUCTS),
+                  page.locator("#lsAllWrap tbody tr").count())
+            page.screenshot(path=os.path.join(SHOT, "18-tab5-일시납.png"), full_page=True)
+
+            # 개시 시점 바꾸기 — 3년차
+            page.click('#lsStart [data-start="s3"]')
+            page.wait_for_timeout(400)
+            check("탭5 3년차 카드 9개", page.locator(".ls-card").count() == LS_CARDS)
+            check("탭5 3년차 메트라이프 303,939원",
+                  "303,939원" in page.locator('.ls-card[data-id="ls71"]').inner_text(),
+                  page.locator('.ls-card[data-id="ls71"]').inner_text())
+            check("탭5 3년차 보간 추정 배지",
+                  "보간 추정" in page.locator('.ls-card[data-id="ls71"]').inner_text())
+            check("탭5 3년차 개시 불가 8개", page.locator('.ls-card .ls-hero.is-none').count() == LS_CARDS - 1,
+                  page.locator('.ls-card .ls-hero.is-none').count())
+            page.screenshot(path=os.path.join(SHOT, "19-tab5-3년차.png"), full_page=True)
+            # 55세 이후 — 비과세
+            page.click('#lsStart [data-start="s55"]')
+            page.wait_for_timeout(400)
+            check("탭5 만 55세 비과세 요약", "비과세" in txt(page, "#lsSummary") and "0원" in txt(page, "#lsSummary"),
+                  txt(page, "#lsSummary"))
+            # 10년차 — 삼성 실측 459,490원
+            page.click('#lsStart [data-start="s10"]')
+            page.wait_for_timeout(400)
+            check("탭5 10년차 삼성 실측 459,490원",
+                  "459,490원" in page.locator('.ls-card[data-id="ls13"]').inner_text(),
+                  page.locator('.ls-card[data-id="ls13"]').inner_text())
+            # 원금 바꾸기 — 5,000만원
+            page.click('#lsStart [data-start="s5"]')
+            page.wait_for_timeout(300)
+            page.fill("#lsPrincipal", "50,000,000")
+            page.dispatch_event("#lsPrincipal", "input")
+            page.wait_for_timeout(400)
+            check("탭5 원금 5,000만 → 적립 6,490만원",
+                  "6,490만원" in txt(page, "#lsSummary"), txt(page, "#lsSummary"))
+            check("탭5 원금 변경 시 카드 갱신",
+                  "201,190원" in page.locator('.ls-card[data-id="ls36"]').inner_text(),
+                  page.locator('.ls-card[data-id="ls36"]').inner_text())
+            # 필터 — 전체 98종
+            page.click('#lsFilter [data-filter="all"]')
+            page.wait_for_timeout(400)
+            check("탭5 필터 전체 98+3행", page.locator("#lsTableWrap tbody tr").count() == len(LS_PRODUCTS) + 3,
+                  page.locator("#lsTableWrap tbody tr").count())
+            page.click('#lsFilter [data-filter="metro3"]')
+            page.wait_for_timeout(300)
+            check(f"탭5 3년차 개시 {len(LS_METRO)}종 필터",
+                  page.locator("#lsTableWrap tbody tr").count() == len(LS_METRO) + 1,
+                  page.locator("#lsTableWrap tbody tr").count())
+            page.click('#lsFilter [data-filter="hybrid"]')
+            page.fill("#lsPrincipal", "100,000,000")
+            page.dispatch_event("#lsPrincipal", "input")
+            page.wait_for_timeout(300)
+
+            # ============ 9. A4 리포트 (탭 5에서 인쇄해도 탭 1 리포트) ============
             page.emulate_media(media="print")
             page.wait_for_timeout(400)
             check("인쇄 시 탭바 숨김", not page.locator("#tabbar").is_visible())
             check("인쇄 시 탭1 리포트 표시", page.locator("#tab-compare").is_visible())
+            check("인쇄 시 탭5 숨김", not page.locator("#tab-lumpsum").is_visible())
             check("인쇄 시 탭4 숨김", not page.locator("#tab-preset").is_visible())
             check("인쇄 리포트 하단 카카오채널", page.locator("#printKakao").is_visible())
             check("인쇄 시 탭2 숨김", not page.locator("#tab-intl").is_visible())
@@ -366,6 +498,15 @@ def main():
             check(f"모바일 탭4 실측 행 {P_OK}건", mp.locator("#presetTableWrap tbody tr").count() == P_OK)
             check("모바일 플로팅 카카오", mp.locator("#kakaoFloat").is_visible())
             mp.screenshot(path=os.path.join(SHOT, "17-mobile-tab4.png"), full_page=True)
+            mp.click('#tabbar .tab[data-tab="lumpsum"]')
+            mp.wait_for_timeout(600)
+            check("모바일 탭5 가로 스크롤 없음", mp.evaluate("document.documentElement.scrollWidth") <= 400,
+                  mp.evaluate("document.documentElement.scrollWidth"))
+            check(f"모바일 탭5 카드 {LS_CARDS}개", mp.locator(".ls-card").count() == LS_CARDS,
+                  mp.locator(".ls-card").count())
+            check("모바일 탭5 요약 계산", "402,380원" in mp.locator("#lsSummary").inner_text())
+            check("모바일 탭5 카드 1열", mp.evaluate("getComputedStyle(document.querySelector('#lsCards')).gridTemplateColumns.split(' ').length") == 1)
+            mp.screenshot(path=os.path.join(SHOT, "20-mobile-tab5.png"), full_page=True)
             m.close()
 
             # ============ 11. 태블릿 ============
