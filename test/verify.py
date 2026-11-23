@@ -381,6 +381,10 @@ def main():
             check("탭5 탭① 비교 행 5개(기준+4)", page.locator("#lsVsWrap tbody tr").count() == 5,
                   page.locator("#lsVsWrap tbody tr").count())
             check("탭5 비교 기준행 강조", page.locator("#lsVsWrap tr.is-mine").count() == 1)
+            vs_heads = page.locator("#lsVsWrap thead th").all_inner_texts()
+            check("탭5 비교표 환급률·세제 열", "개시 환급률" in vs_heads and "세제·특징" in vs_heads, vs_heads)
+            check("탭5 비교표 일시납 환급률 129.8%", "129.8%" in page.locator("#lsVsWrap tr.is-mine").inner_text(),
+                  page.locator("#lsVsWrap tr.is-mine").inner_text())
             check("탭5 비교 요약", "배" in txt(page, "#lsVsNote"), txt(page, "#lsVsNote")[:120])
             # 보험사별 조건
             check("탭5 보험사 조건 카드 4개", page.locator("#lsRules .rule-card").count() == 4)

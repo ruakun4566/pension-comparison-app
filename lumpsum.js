@@ -454,6 +454,7 @@
         way: (usd ? '$' + comma(p.monthly) : comma(p.monthly) + '원') + ' × ' + p.payYears + '년',
         paid: paid,
         acc: acc,
+        rate: p.rates && p.rates.start ? p.rates.start : null,
         monthly: pay,
         tax: (p.tags || []).join(' · ') || '—',
         type: p.type || '—'
@@ -469,11 +470,13 @@
     if (!pick) { host.innerHTML = ''; return; }
     var pl = payoutOf(pick, opt) || payoutOf(pick, startOpt('s5'));
     var rows = tab1Rows();
+    var mineAcc = accAt(pick, opt);
     var mine = {
       name: pick.company + ' ' + pick.name,
       way: '일시납 ' + won(state.principal),
       paid: state.principal,
-      acc: accAt(pick, opt),
+      acc: mineAcc,
+      rate: mineAcc == null || !state.principal ? null : mineAcc / state.principal * 100,
       monthly: pl ? pl.monthly : 0,
       tax: opt.age >= TAX_FREE_AGE ? '비과세(종신형)' : '이자 15.4% 과세',
       type: '일시납 연금보험',
@@ -489,6 +492,7 @@
         + '<th class="rowhead">' + esc(r.name) + (r.mine ? '<span class="ls-pin">기준</span>' : '') + '</th>'
         + '<td>' + esc(r.way) + '<span class="ls-small">' + esc(r.type) + '</span></td>'
         + '<td class="num">' + esc(won(r.paid)) + '</td>'
+        + '<td class="num">' + (r.rate == null ? '—' : r.rate.toFixed(1) + '%') + '</td>'
         + '<td class="num">' + esc(won(r.acc)) + '</td>'
         + '<td class="num' + (r.monthly && r.monthly === maxPay ? ' is-key' : '') + '">' + (r.monthly ? comma(r.monthly) + '원' : '—') + '</td>'
         + '<td class="ls-small">' + esc(r.tax) + '</td>'
@@ -496,7 +500,7 @@
     }).join('');
 
     host.innerHTML = '<table class="ls-table ls-vs"><thead><tr>'
-      + '<th class="rowhead">상품</th><th>납입 방식</th><th>총 납입</th><th>개시 시점 적립액</th><th>예상 월 연금</th><th>세제·특징</th>'
+      + '<th class="rowhead">상품</th><th>납입 방식</th><th>총 납입</th><th>개시 환급률</th><th>개시 시점 적립액</th><th>예상 월 연금</th><th>세제·특징</th>'
       + '</tr></thead><tbody>' + body + '</tbody></table>';
 
     var diff = $('#lsVsNote');
