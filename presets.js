@@ -94,11 +94,12 @@
     if (!host) return;
 
     /* 예상 연·월 수령액이 있는 행이 하나도 없으면 그 열 자체를 만들지 않는다. */
-    var hasPayout = list.some(function (r) { return n(r.annualStd) !== null; });
-    var hasLow = list.some(function (r) { return n(r.annualLow) !== null; });
-    var hasBase = list.some(function (r) { return n(r.pensionBase) !== null; });
-    var hasPaid = list.some(function (r) { return n(r.paid) !== null; });
-    var hasRefund = list.some(function (r) { return n(r.refundAtStart) !== null; });
+    /* 값이 0원인 행(계산기가 연금액 0을 돌려준 불가 조합)은 '값 있음'으로 보지 않는다. */
+    var hasPayout = list.some(function (r) { return n(r.annualStd) > 0; });
+    var hasLow = list.some(function (r) { return n(r.annualLow) > 0; });
+    var hasBase = list.some(function (r) { return n(r.pensionBase) > 0; });
+    var hasPaid = list.some(function (r) { return n(r.paid) > 0; });
+    var hasRefund = list.some(function (r) { return n(r.refundAtStart) > 0; });
 
     if (!list.length) {
       host.innerHTML = '<p class="empty-note">선택한 조건에 해당하는 실측 설계가 없습니다. 조건을 넓히거나 각 사 계산기에서 직접 조회해 주세요.</p>';
