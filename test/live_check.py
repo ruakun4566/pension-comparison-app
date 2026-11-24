@@ -7,6 +7,13 @@ EXPECT_OK = sum(1 for r in _local["rows"] if r["status"] == "ok")
 EXPECT_IBK = sum(1 for r in _local["rows"] if r["status"] == "ok" and r["company"] == "ibk")
 EXPECT_IM = sum(1 for r in _local["rows"] if r["status"] == "ok" and r["company"] == "im")
 EXPECT_NA = sum(1 for r in _local["rows"] if r["status"] == "na")
+_ls = json.loads(open("/workspace/work/pension-comparison-app/data/lumpsum-data.js", encoding="utf-8")
+                 .read().split("window.LUMPSUM_DATA = ", 1)[1].rstrip().rstrip(";"))
+LS_CH = _ls["meta"]["channelCounts"]
+LS_MEM = [p for p in _ls["products"] if "대면" in p["channels"]]
+LS_MEM_H = [p for p in LS_MEM if p["startYears"] is not None and 0 < p["startYears"] <= 5
+            and not (p["company"].startswith("메트라이프") and p["startYears"] <= 3)]
+LS_BANK = [p for p in _ls["products"] if "방카" in p["channels"]]
 URL = "https://ruakun4566.github.io/pension-comparison-app/"
 DOCS = "/workspace/work/pension-comparison-app/docs"
 errs = []
@@ -83,15 +90,32 @@ with sync_playwright() as p:
     mp.screenshot(path=os.path.join(DOCS, "tab4-preset-mobile.png"), full_page=True)
     pg.click('#tabbar .tab[data-tab="lumpsum"]')
     pg.wait_for_timeout(800)
-    chk("live 탭5 카드 9개", pg.locator(".ls-card").count() == 9, pg.locator(".ls-card").count())
+    chk("live 탭5 판매채널 버튼 5개", pg.locator("#lsChannel .seg-btn").count() == 5,
+        pg.locator("#lsChannel .seg-btn").all_inner_texts())
+    chk(f"live 탭5 대면 {LS_CH['대면']}종 안내", f"{LS_CH['대면']}종" in pg.locator("#lsChannelNote").inner_text(),
+        pg.locator("#lsChannelNote").inner_text()[:80])
+    chk("live 탭5 기본 대면 카드 4개", pg.locator(".ls-card").count() == 4, pg.locator(".ls-card").count())
     sm = pg.locator("#lsSummary").inner_text()
-    chk("live 탭5 1억 → 1억 2,980만 · 월 402,380원", "1억 2,980만원" in sm and "402,380원" in sm, sm)
-    chk("live 탭5 삼성 실측 383,640원", "실측" in pg.locator('.ls-card[data-id="ls13"]').inner_text())
+    chk("live 탭5 1억 → 1억 2,745만 · 월 395,095원", "1억 2,745만원" in sm and "395,095원" in sm, sm)
+    chk("live 탭5 방카 전용 KB 카드 없음(대면)", pg.locator('.ls-card[data-id="ls36"]').count() == 0)
+    chk(f"live 탭5 대면 5년차 표 {len(LS_MEM_H)}+1행",
+        pg.locator("#lsTableWrap tbody tr").count() == len(LS_MEM_H) + 1,
+        pg.locator("#lsTableWrap tbody tr").count())
     pg.screenshot(path=os.path.join(DOCS, "tab5-lumpsum-live.png"), full_page=True)
+    pg.click('#lsChannel [data-channel="방카"]')
+    pg.wait_for_timeout(600)
+    chk("live 탭5 방카 전환 카드 8개", pg.locator(".ls-card").count() == 8, pg.locator(".ls-card").count())
+    chk("live 탭5 방카 전환 KB 카드", pg.locator('.ls-card[data-id="ls36"]').count() == 1)
+    chk(f"live 탭5 방카 표 {len(LS_BANK)}행 이상", pg.locator("#lsTableWrap tbody tr").count() >= len(LS_BANK),
+        pg.locator("#lsTableWrap tbody tr").count())
+    pg.screenshot(path=os.path.join(DOCS, "tab5-lumpsum-banka-live.png"), full_page=True)
+    pg.click('#lsChannel [data-channel="대면"]')
+    pg.wait_for_timeout(400)
     mp.click('#tabbar .tab[data-tab="lumpsum"]')
     mp.wait_for_timeout(700)
-    chk("live 모바일 탭5 계산", "402,380원" in mp.locator("#lsSummary").inner_text(),
+    chk("live 모바일 탭5 계산(대면)", "395,095원" in mp.locator("#lsSummary").inner_text(),
         mp.locator("#lsSummary").inner_text()[:120])
+    chk("live 모바일 탭5 판매채널 5버튼", mp.locator("#lsChannel .seg-btn").count() == 5)
     mp.screenshot(path=os.path.join(DOCS, "tab5-lumpsum-mobile-live.png"), full_page=True)
     chk("live 콘솔 에러 없음", not errs, errs[:4])
     b.close()

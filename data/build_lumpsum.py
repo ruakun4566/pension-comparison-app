@@ -28,6 +28,53 @@ SRC = os.path.join(HERE, "source", "lumpsum-disclosure-2026-11-24.csv")
 OUT = os.path.join(HERE, "lumpsum-data.js")
 
 # ---------------------------------------------------------------------------
+# 판매채널 정규화 — 공시실 「판매채널」 표기를 4개 판매경로 + 기타로 나눈다.
+#   공시실은 「대면채널」「방카슈랑스」「CM」「TM」「기타」를 붙여서 표기하므로(예: "대면채널 방카슈랑스 기타")
+#   문자열에 포함된 경로를 모두 토큰으로 남긴다. 토큰을 만들지 않고 추정하지 않는다.
+# ---------------------------------------------------------------------------
+CHANNEL_ORDER = ["대면", "방카", "CM", "TM", "기타"]
+CHANNEL_DEF = {
+    "대면": {
+        "key": "대면", "label": "설계사 대면", "short": "대면",
+        "desc": "보험설계사(GA·전속)가 고객을 직접 만나 판매하는 채널입니다. 공시실 표기 「대면채널」.",
+    },
+    "방카": {
+        "key": "방카", "label": "방카슈랑스", "short": "방카",
+        "desc": "은행 창구에서 판매합니다. 설계사가 직접 모집할 수 없는 상품이 대부분입니다.",
+    },
+    "CM": {
+        "key": "CM", "label": "CM(온라인)", "short": "CM",
+        "desc": "다이렉트·인터넷·모바일로 고객이 직접 가입합니다. 공시실 표기 「CM」.",
+    },
+    "TM": {
+        "key": "TM", "label": "TM(전화)", "short": "TM",
+        "desc": "텔레마케팅으로 판매합니다.",
+    },
+    "기타": {
+        "key": "기타", "label": "기타", "short": "기타",
+        "desc": "홈쇼핑 등 위 경로 외 판매입니다(공시실 표기 「기타」).",
+    },
+}
+
+
+def channels_of(raw):
+    """공시실 판매채널 문자열 → 정규화 토큰 목록 (표기된 경로만)."""
+    s = raw or ""
+    out = []
+    if "대면" in s:
+        out.append("대면")
+    if "방카" in s:
+        out.append("방카")
+    if "CM" in s:
+        out.append("CM")
+    if "TM" in s:
+        out.append("TM")
+    if "기타" in s:
+        out.append("기타")
+    return out
+
+
+# ---------------------------------------------------------------------------
 # 상품요약서·공시실 조사에서 확인한 규정 (키: CSV 상품명에 반드시 포함되는 문자열)
 #   startYears : 규정상 가장 이른 연금개시(=최소거치) 년차. None이면 미확인.
 #   wd         : 5년차 중도인출 한도(%) — 해약환급금 대비. None이면 요약서 미기재/불가.
@@ -59,16 +106,16 @@ ANNOTATIONS = {
         note="대면 전용 · 인출 50%·잔액 30%"),
     "삼성 플래티넘행복연금보험(B2601)(보증형": dict(
         name="삼성 플래티넘행복 보증형(방카)", startYears=5, wd=50, fixed=None, card=True,
-        note="5년 시점 보너스 반영형 · 확정이율 요약서 미기재 · 인출 후 잔액 50% 유지"),
+        note="5년 시점 최저계약자적립액 보증형(보증비용 부과) · 확정이율 아님 · 인출 후 잔액 50% 유지"),
     "삼성 플래티넘행복연금보험(2601)(보증형": dict(
         name="삼성 플래티넘행복 보증형(대면)", startYears=5, wd=50, fixed=None,
-        note="5년 시점 보너스 반영형 · 인출 후 잔액 50% 유지"),
+        note="5년 시점 최저계약자적립액 보증형(보증비용 부과) · 확정이율 아님 · 인출 후 잔액 50% 유지"),
     "삼성 플래티넘행복연금보험(2601)(미보증형": dict(
         name="삼성 플래티넘행복 미보증(대면)", startYears=5, wd=50, fixed=None,
-        note="미보증형 · 인출 후 잔액 50% 유지"),
+        note="5년 시점 최저적립액 미보증형 · 공시이율 부리 · 인출 후 잔액 50% 유지"),
     "삼성 플래티넘행복연금보험(B2601)(미보증형": dict(
         name="삼성 플래티넘행복 미보증(방카)", startYears=5, wd=50, fixed=None,
-        note="미보증형 · 인출 후 잔액 50% 유지"),
+        note="5년 시점 최저적립액 미보증형 · 공시이율 부리 · 인출 후 잔액 50% 유지"),
     "삼성 에이스즉시연금보험(B2601)(무배당) [즉시형": dict(
         name="삼성 에이스즉시 즉시형(상속연금형)", startYears=0, wd=None, fixed=None,
         note="즉시형 — 중도인출 개념 없음"),
@@ -82,7 +129,8 @@ ANNOTATIONS = {
         name="한화 스마트하이브리드 연금강화", startYears=5, wd=50, fixed=4.81, card=True,
         note="5년 확정이율 4.81% — 조사 상품 중 최고 수준"),
     "한화생명 스마트하이브리드연금보험 무배당(기본형)": dict(
-        name="한화 스마트하이브리드 기본", startYears=5, wd=50, fixed=4.81),
+        name="한화 스마트하이브리드 기본", startYears=5, wd=50, fixed=4.81,
+        note="인출 1개월 후·연 12회·50% · 잔액 30% · 확정 4.81%"),
     "한화생명 부자되는 e연금보험 무배당(1종": dict(
         name="한화 부자되는 e연금 1종 연금강화", startYears=10, wd=50, fixed=None,
         note="가입최고나이=개시나이−10 → 5년차 개시 불가"),
@@ -93,7 +141,8 @@ ANNOTATIONS = {
         name="교보 하이브리드 [B] 거치(방카)", startYears=5, wd=50, fixed=4.55,
         note="인출 수수료 0.2%/2천원(연 4회 면제)"),
     "교보하이브리드연금보험 (무배당,거치형)": dict(
-        name="교보 하이브리드 거치(대면)", startYears=5, wd=50, fixed=4.55),
+        name="교보 하이브리드 거치(대면)", startYears=5, wd=50, fixed=4.55,
+        note="인출 1개월 후·50% · 수수료 0.2%/2천원(연 4회 면제)"),
     "교보바로받는웰스연금보험(거치형)": dict(
         name="교보 바로받는웰스 거치형", startYears=7, wd=50, fixed=None,
         note="만 15세~개시나이−7 → 5년차 개시 불가"),
@@ -107,20 +156,23 @@ ANNOTATIONS = {
     "SOL메이트하이브리드연금보험(무배당)(기본형)": dict(
         name="신한 SOL메이트 기본(방카)", startYears=5, wd=50, fixed=4.10),
     "신한SOL메이트하이브리드연금보험(무배당)(연금강화형)": dict(
-        name="신한 SOL메이트 연금강화(대면)", startYears=5, wd=50, fixed=4.10),
+        name="신한 SOL메이트 연금강화(대면)", startYears=5, wd=50, fixed=4.10,
+        note="대면판 · 인출 6개월 후·50% · 잔액 30% · 확정 4.10%"),
     "신한SOL메이트하이브리드연금보험(무배당)(기본형)": dict(
-        name="신한 SOL메이트 기본(대면)", startYears=5, wd=50, fixed=4.10),
+        name="신한 SOL메이트 기본(대면)", startYears=5, wd=50, fixed=4.10,
+        note="대면판 · 인출 6개월 후·50% · 잔액 30% · 확정 4.10%"),
     "신한The부자만들기연금보험(무배당)(기본형)": dict(
         name="신한 The부자만들기 기본", startYears=10, wd=None, fixed=None,
-        note="최소거치 10년 — 5년차 개시 불가"),
+        note="최소거치 10년 — 5년차 개시 불가 · 요약서에 중도인출 조항 없음(약관 확인) · 개시 보너스 2.0%"),
     "신한The부자만들기연금보험(무배당)(연금강화형)": dict(
         name="신한 The부자만들기 연금강화", startYears=10, wd=None, fixed=None,
-        note="최소거치 10년 — 5년차 개시 불가"),
+        note="최소거치 10년 — 5년차 개시 불가 · 요약서에 중도인출 조항 없음(약관 확인) · 개시 보너스 2.0%"),
     "엔젤하이브리드연금보험(연금강화형)": dict(
         name="동양 엔젤하이브리드 연금강화", startYears=5, wd=70, fixed=4.84, card=True,
         note="인출 70% — 조사 상품 중 한도 최대 · 확정이율 4.84%"),
     "엔젤하이브리드연금보험(기본형)": dict(
-        name="동양 엔젤하이브리드 기본", startYears=5, wd=70, fixed=4.84),
+        name="동양 엔젤하이브리드 기본", startYears=5, wd=70, fixed=4.84,
+        note="인출 70%·연 12회 · 확정 4.84%"),
     "하나 하이브리드연금보험_연금강화형": dict(
         name="하나 하이브리드 연금강화", startYears=5, wd=None, fixed=4.75, card=True,
         note="중도인출 조건 요약서 미기재 → 약관 확인 필요"),
@@ -152,8 +204,8 @@ ANNOTATIONS = {
         name="NH 하나로든든NH 일시납", startYears=5, wd=50, fixed=None,
         note="수수료 0 · 종신 10~40년·100세 보증"),
     "행복열매NH연금보험(무배당)_2404_(일시납)": dict(
-        name="NH 행복열매 2404 일시납", startYears=5, wd=None, fixed=None,
-        note="중도인출 1회 한도가 사실상 100% · 생활자금자동인출(3년 경과 후)"),
+        name="NH 행복열매 2404 일시납", startYears=5, wd=100, fixed=None,
+        note="1회 한도 해약환급금 전액 · 잔액 30% · 10년 내 누적≤납입보험료 · 생활자금자동인출(3년 경과 후)"),
     # ---- 3년 확정형 — 3년차 개시가 규정상 가능한 유일한 상품군 ----
     "The Best Choice 연금보험II_3종(거치형)": dict(
         name="메트라이프 The Best Choice 연금보험Ⅱ 3종", startYears=3, wd=50, fixed=3.78,
@@ -202,21 +254,28 @@ ANNOTATIONS = {
         note="10년 이후 금리연동형 — 5년차 개시 불가"),
     "AIA 달러로 받는 연금보험III 1형 1종": dict(
         name="AIA 달러 연금Ⅲ 1형 1종", startYears=10, wd=60, fixed=None,
-        note="이율확정 종료 후 인출 — 5년차 불가"),
+        note="이율확정 10년 종료 후 인출 60% — 5년차 불가"),
     "AIA 달러로 받는 연금보험III 1형 2종": dict(
-        name="AIA 달러 연금Ⅲ 1형 2종", startYears=10, wd=60, fixed=None),
+        name="AIA 달러 연금Ⅲ 1형 2종", startYears=10, wd=60, fixed=None,
+        note="이율확정 10년 종료 후 인출 60% — 5년차 불가"),
     "AIA 달러로 받는 연금보험III 2형 1종": dict(
-        name="AIA 달러 연금Ⅲ 2형 1종", startYears=10, wd=60, fixed=None),
+        name="AIA 달러 연금Ⅲ 2형 1종", startYears=10, wd=60, fixed=None,
+        note="이율확정 10년 종료 후 인출 60% — 5년차 불가"),
     "AIA 달러로 받는 연금보험III 2형 2종": dict(
-        name="AIA 달러 연금Ⅲ 2형 2종", startYears=10, wd=60, fixed=None),
+        name="AIA 달러 연금Ⅲ 2형 2종", startYears=10, wd=60, fixed=None,
+        note="이율확정 10년 종료 후 인출 60% — 5년차 불가"),
     "AIA 달러로 받는 연금보험III 3형 1종": dict(
-        name="AIA 달러 연금Ⅲ 3형 1종", startYears=20, wd=60, fixed=None),
+        name="AIA 달러 연금Ⅲ 3형 1종", startYears=20, wd=60, fixed=None,
+        note="이율확정 20년 종료 후 인출 60% — 5년차 불가"),
     "AIA 달러로 받는 연금보험III 3형 2종": dict(
-        name="AIA 달러 연금Ⅲ 3형 2종", startYears=20, wd=60, fixed=None),
+        name="AIA 달러 연금Ⅲ 3형 2종", startYears=20, wd=60, fixed=None,
+        note="이율확정 20년 종료 후 인출 60% — 5년차 불가"),
     "AIA 달러로 받는 연금보험III 4형 1종": dict(
-        name="AIA 달러 연금Ⅲ 4형 1종", startYears=20, wd=60, fixed=None),
+        name="AIA 달러 연금Ⅲ 4형 1종", startYears=20, wd=60, fixed=None,
+        note="이율확정 20년 종료 후 인출 60% — 5년차 불가"),
     "AIA 달러로 받는 연금보험III 4형 2종": dict(
-        name="AIA 달러 연금Ⅲ 4형 2종", startYears=20, wd=60, fixed=None),
+        name="AIA 달러 연금Ⅲ 4형 2종", startYears=20, wd=60, fixed=None,
+        note="이율확정 20년 종료 후 인출 60% — 5년차 불가"),
     "GOLDEN TIME 연금보험Ⅵ 1형": dict(
         name="AIA GOLDEN TIMEⅥ 1형(10년·쿠폰)", startYears=10, wd=60, fixed=None,
         note="이율확정 10년 — 5년차 인출 불가"),
@@ -246,7 +305,8 @@ ANNOTATIONS = {
         name="교보 바로받는연금 [B] 즉시형", startYears=0, wd=None, fixed=None,
         note="중도인출·추가납입 불가"),
     "교보바로받는웰스연금보험(즉시형)": dict(
-        name="교보 바로받는웰스 즉시형", startYears=0, wd=None, fixed=None),
+        name="교보 바로받는웰스 즉시형", startYears=0, wd=None, fixed=None,
+        note="즉시형 — 종신 12/20/30년·100세 보증 · 중도인출 개념 없음"),
     "삼성 에이스즉시연금보험(B2601)(무배당) [거치형": dict(
         name="삼성 에이스즉시 거치형(상속연금형)", startYears=2, wd=50, fixed=None,
         note="거치 2~5년 후 개시 · 상속연금형(만기형)"),
@@ -254,16 +314,17 @@ ANNOTATIONS = {
         name="삼성 파워즉시 거치형(상속연금형)", startYears=2, wd=50, fixed=None,
         note="거치 2~5년 후 개시 · 상속연금형(만기형)"),
     "한화생명 바로연금보험 무배당": dict(
-        name="한화 바로연금보험(즉시형)", startYears=0, wd=None, fixed=None),
+        name="한화 바로연금보험(즉시형)", startYears=0, wd=None, fixed=None,
+        note="즉시형 — 종신·상속 · 중도인출 개념 없음"),
     "한화생명 스마트V연금보험": dict(
-        name="한화 스마트V연금보험", startYears=None, wd=None, fixed=None,
-        note="개시·인출 조건 요약서 확인 필요"),
+        name="한화 스마트V연금보험", startYears=5, wd=50, fixed=None,
+        note="거치형 가입최고나이=개시나이−5 → 5년차 개시 가능 · 인출 1개월 후 50%·잔액 30%"),
     "우리WON하는누구나행복연금보험": dict(
         name="동양 우리WON하는 누구나행복", startYears=5, wd=70, fixed=None,
-        note="중도인출 70%"),
+        note="중도인출 70%·연 12회"),
     "개인연금저축교보로연금보험": dict(
         name="교보 개인연금저축 연금보험", startYears=None, wd=None, fixed=None,
-        note="세제적격 연금저축 — 별도 규정"),
+        note="세제적격 연금저축(계약이전 전용) — 개시나이 만 55~70세 · 가입나이 ≤ 개시나이−1"),
 }
 
 
@@ -315,12 +376,16 @@ def main():
         ann = find_ann(full)
         if not ann:
             ann = extra_rule(company, full)
+        raw_channel = r["판매채널"].strip()
+        chans = channels_of(raw_channel)
         p = {
             "id": "ls%02d" % (i + 1),
-            "company": r["보험사"].strip(),
+            "company": company,
             "name": ann.get("name") or short_name(full),
             "full": full,
-            "channel": r["판매채널"].strip(),
+            "channel": raw_channel,
+            "channels": chans,
+            "channelText": "+".join(chans) if chans else "미표기",
             "joinType": r["가입유형"].strip(),
             "rate1": ratio(r["1년 적립률"]),
             "rate3": ratio(r["3년 적립률"]),
@@ -346,14 +411,22 @@ def main():
             p["group"] = "hybrid"
         else:
             p["group"] = "etc"
+        # 비고가 비어 있는 AIA 상품은 요약서에서 확인한 이율확정기간으로 한 줄을 채운다
+        if not p["note"] and p["company"].startswith("AIA") and p["startYears"] in (10, 20):
+            p["note"] = "이율확정 %d년 종료 후 인출 60%% — 5년차 불가" % p["startYears"]
 
     cards = [p["id"] for p in products if p["card"]]
+    channel_counts = {c: sum(1 for p in products if c in p["channels"]) for c in CHANNEL_ORDER}
     data = {
         "meta": {
             "asOf": "2026-11-24",
             "count": len(products),
             "source": "생명보험협회 공시실 저축성 요약공시(일시납 5,000만원·남자) + 보험사 상품요약서 98종 원문",
             "basis": "적립률은 공시실이 보험사 제출값 그대로이며, 1억 원은 5,000만원 기준 적립률을 그대로 적용해 환산했습니다.",
+            "channelSource": "판매채널은 생명보험협회 공시실 「저축성 요약공시」의 판매채널 표기를 판매경로별로 나눈 값입니다(대면·방카·CM·TM·기타). 한 상품이 여러 채널에 걸치면 모두 표시합니다.",
+            "channelOrder": CHANNEL_ORDER,
+            "channelDef": CHANNEL_DEF,
+            "channelCounts": channel_counts,
             "engine": {
                 "factor": [
                     {"age": 46, "annual": 2.52, "label": "삼성 즉시형 실측(46세·5,000만원 → 월 105,130원)"},
@@ -374,7 +447,7 @@ def main():
     with open(OUT, "w", encoding="utf-8") as f:
         f.write("/* 일시납 연금보험 98종 공시 데이터 — data/build_lumpsum.py 가 생성. 직접 수정하지 마세요. */\n")
         f.write("window.LUMPSUM_DATA = " + body + ";\n")
-    print("products", len(products), "cards", len(cards), "->", OUT)
+    print("products", len(products), "cards", len(cards), "channels", channel_counts, "->", OUT)
 
 
 if __name__ == "__main__":

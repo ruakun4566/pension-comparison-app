@@ -50,6 +50,22 @@ LS_HYBRID = [p for p in LS_PRODUCTS if ls_group(p) == "hybrid"]
 LS_METRO = [p for p in LS_PRODUCTS if ls_group(p) == "metro3"]
 LS_ETC = [p for p in LS_PRODUCTS if ls_group(p) == "etc"]
 LS_CARDS = len(LS["cards"])
+LS_CH = LS["meta"].get("channelCounts", {})
+
+
+def ls_in(p, ch):
+    if ch == "all":
+        return True
+    if ch == "TM":
+        return "TM" in p["channels"] or "기타" in p["channels"]
+    return ch in p["channels"]
+
+
+LS_MEM = [p for p in LS_PRODUCTS if ls_in(p, "대면")]
+LS_MEM_H = [p for p in LS_MEM if ls_group(p) == "hybrid"]
+LS_BANK = [p for p in LS_PRODUCTS if ls_in(p, "방카")]
+LS_BANK_H = [p for p in LS_BANK if ls_group(p) == "hybrid"]
+LS_TM = [p for p in LS_PRODUCTS if ls_in(p, "TM")]
 
 results = []
 
@@ -284,7 +300,7 @@ def main():
             page.evaluate("""() => {
                 localStorage.setItem('ddp-intl-v1', JSON.stringify({mode:'forward',term:5,premium:150000,budget:100000000,prepay:false,withdrawal:'20yr',rateMode:'auto',rateManual:1350,year:2026,quarter:4}));
                 localStorage.setItem('ddp-ita-v1', JSON.stringify({product:'evo',term:25,monthlyUSD:200,targetRate:15}));
-                localStorage.setItem('ddp-lumpsum-v1', JSON.stringify({principal:200000000,joinAge:52,start:'s3',pick:'ls45',filter:'metro3'}));
+                localStorage.setItem('ddp-lumpsum-v1', JSON.stringify({principal:200000000,joinAge:52,start:'s3',pick:'ls36',filter:'metro3',channel:'방카'}));
             }""")
             page.reload(wait_until="networkidle")
             page.wait_for_timeout(600)
@@ -294,9 +310,9 @@ def main():
             st3 = page.evaluate("window.__itaTab.state()")
             check("탭3 설정 복원", st3["product"] == "evo" and st3["term"] == 25 and st3["targetRate"] == 15, st3)
             st5 = page.evaluate("window.__lumpsumTab.state()")
-            check("탭5 설정 복원(원금·나이·개시·기준상품·필터)",
+            check("탭5 설정 복원(원금·나이·개시·기준상품·필터·판매채널)",
                   st5["principal"] == 200000000 and st5["joinAge"] == 52 and st5["start"] == "s3"
-                  and st5["pick"] == "ls45" and st5["filter"] == "metro3", st5)
+                  and st5["pick"] == "ls36" and st5["filter"] == "metro3" and st5["channel"] == "방카", st5)
             page.click('#tabbar .tab[data-tab="intl"]')
             page.wait_for_timeout(400)
             check("복원된 탭2 5년납 3사", page.locator(".intl-card").count() == 3)
@@ -339,110 +355,180 @@ def main():
             # ============ 8c. 탭 5 : 일시납 연금 비교 ============
             page.click('#tabbar .tab[data-tab="lumpsum"]')
             page.wait_for_timeout(500)
-            # 앞 단계에서 저장해 둔 탭5 설정(2억·52세·3년차)을 기본값으로 돌린다
+            # 앞 단계에서 저장해 둔 탭5 설정(2억·52세·3년차·방카)을 기본값으로 돌린다
             page.fill("#lsJoinAge", "46")
             page.dispatch_event("#lsJoinAge", "input")
             page.fill("#lsPrincipal", "100,000,000")
             page.dispatch_event("#lsPrincipal", "input")
+            page.click('#lsChannel [data-channel="대면"]')
             page.click('#lsStart [data-start="s5"]')
-            page.select_option("#lsPick", "ls36")
+            page.select_option("#lsPick", "ls19")
             page.click('#lsFilter [data-filter="hybrid"]')
             page.wait_for_timeout(500)
             check("탭5 패널 표시", page.locator("#tab-lumpsum").is_visible())
             check("탭5 aria-selected", page.locator('#tabbar .tab[data-tab="lumpsum"]').get_attribute("aria-selected") == "true")
             check("탭5 진입 시 탭4 숨김", not page.locator("#tab-preset").is_visible())
-            check(f"탭5 주력 카드 {LS_CARDS}개", page.locator(".ls-card").count() == LS_CARDS,
+
+            # --- 판매채널 설정 ---
+            ch_txt = [t.strip() for t in page.locator("#lsChannel .seg-btn").all_inner_texts()]
+            check("탭5 판매채널 버튼 5개", page.locator("#lsChannel .seg-btn").count() == 5, ch_txt)
+            check("탭5 판매채널 총계(98)", "98" in ch_txt[0], ch_txt)
+            check(f"탭5 설계사 대면 {LS_CH.get('대면')}종 표시", f"{LS_CH['대면']}" in ch_txt[1], ch_txt)
+            check(f"탭5 방카 {LS_CH.get('방카')}종 표시", f"{LS_CH['방카']}" in ch_txt[2], ch_txt)
+            check(f"탭5 CM {LS_CH.get('CM')}종 표시", f"{LS_CH['CM']}" in ch_txt[3], ch_txt)
+            check("탭5 기본 채널 = 설계사 대면", page.evaluate("window.__lumpsumTab.state()")["channel"] == "대면")
+            check("탭5 채널 활성 표시", page.locator('#lsChannel .seg-btn[data-channel="대면"]').get_attribute("class").find("is-on") >= 0)
+            check("탭5 채널 설명", "설계사 대면" in txt(page, "#lsChannelNote") and "공시실 판매채널" in txt(page, "#lsChannelNote"),
+                  txt(page, "#lsChannelNote")[:120])
+            check("탭5 요약에 판매채널", "판매채널" in txt(page, "#lsSummary") and "설계사 대면" in txt(page, "#lsSummary"))
+
+            # --- 주력 카드 (채널 반영) ---
+            check("탭5 대면 주력 카드 4개", page.locator(".ls-card").count() == 4,
                   page.locator(".ls-card").count())
+            card_ids = [page.locator(".ls-card").nth(i).get_attribute("data-id") for i in range(page.locator(".ls-card").count())]
+            check("탭5 대면 카드 = 한화·동양·신한·삼성", set(card_ids) == {"ls45", "ls19", "ls30", "ls10"}, card_ids)
+            check("탭5 대면 카드에 방카 전용 KB 없음", "ls36" not in card_ids, card_ids)
+            check("탭5 카드에 채널 표기", "대면" in page.locator('.ls-card[data-id="ls19"]').inner_text())
             sm = txt(page, "#lsSummary")
-            check("탭5 요약 1억 → 5년 적립 1억 2,980만원", "1억 2,980만원" in sm, sm)
-            check("탭5 KB 5년형 월 402,380원", "402,380원" in sm, sm)
-            check("탭5 5년차 과세 459만원", "459만원" in sm and "15.4%" in sm, sm)
-            kb_card = page.locator('.ls-card[data-id="ls36"]').inner_text()
-            check("탭5 KB 카드 129.80%·인출 60%", "129.80%" in kb_card and "60%" in kb_card, kb_card)
-            check("탭5 KB 카드 공시 환산 배지", "공시 환산" in kb_card)
-            sam_card = page.locator('.ls-card[data-id="ls13"]').inner_text()
-            check("탭5 삼성 한번에내는 실측 383,640원", "383,640원" in sam_card and "실측" in sam_card, sam_card)
-            check("탭5 실측 배지 1개", page.locator(".ls-card .ls-src.is-measured").count() == 1)
-            check(f"탭5 기본 표 {len(LS_HYBRID)}+1행(5년차 개시)",
-                  page.locator("#lsTableWrap tbody tr").count() == len(LS_HYBRID) + 1,
+            check("탭5 요약 1억 → 5년 적립 1억 2,745만원", "1억 2,745만원" in sm, sm)
+            check("탭5 한화 5년차 월 395,095원", "395,095원" in sm, sm)
+            check("탭5 5년차 과세 423만원", "423만원" in sm and "15.4%" in sm, sm)
+            hwa = page.locator('.ls-card[data-id="ls19"]').inner_text()
+            check("탭5 한화 카드 127.45%·인출 50%", "127.45%" in hwa and "50%" in hwa, hwa)
+            check("탭5 한화 카드 공시 환산 배지", "공시 환산" in hwa)
+            sam = page.locator('.ls-card[data-id="ls10"]').inner_text()
+            check("탭5 삼성 플래티넘(대면) 5년 시점 보증형 표기", "최저계약자적립액 보증형" in sam, sam)
+
+            # --- 비교표 (채널 × 개시 조건) ---
+            check(f"탭5 대면 5년차 개시 표 {len(LS_MEM_H)}+1행",
+                  page.locator("#lsTableWrap tbody tr").count() == len(LS_MEM_H) + 1,
                   page.locator("#lsTableWrap tbody tr").count())
             check("탭5 표 그룹 머리글", page.locator("#lsTableWrap .ls-group-row").count() == 1)
             heads5 = page.locator("#lsTableWrap thead th").all_inner_texts()
             check("탭5 표 열 구성", all(k in heads5 for k in ("5년 확정이율", "예상 월 연금", "근거", "개시 가능")), heads5)
+            tbl = page.locator("#lsTableWrap tbody").inner_text()
+            check("탭5 표에 대면+방카 병기", "대면+방카" in tbl, tbl[:160])
+            check("탭5 표에 방카 전용 KB 없음", "KB 하이브리드" not in tbl)
+            fl = [t.strip() for t in page.locator("#lsFilter .seg-btn").all_inner_texts()]
+            check(f"탭5 필터 라벨이 채널 안 건수({len(LS_MEM)}종)",
+                  f"전체 {len(LS_MEM)}종" in fl[0] and f"5년차 개시 {len(LS_MEM_H)}" in fl[1], fl)
+            check("탭5 대면 3년차 개시 0종", "3년차 개시 0" in fl[2], fl)
+
             # 세제 카드
             tax = txt(page, "#lsTax")
             check("탭5 세제 카드 과세/비과세", "이자소득세" in tax and "전액 비과세" in tax, tax[:200])
             check("탭5 세제 비과세 0원", "0원" in tax)
             check("탭5 중도인출 vs 해지 안내", "과세이연" in tax and "해지 = 즉시 과세" in tax)
             wd = txt(page, "#lsWithdraw")
-            check("탭5 중도인출 60% = 7,788만원", "7,788만원" in wd, wd)
-            check("탭5 잔액 5,192만원", "5,192만원" in wd, wd)
+            check("탭5 중도인출 50% = 6,373만원", "6,373만원" in wd, wd[:160])
+            check("탭5 해지 세후 1억 2,322만원", "1억 2,322만원" in wd, wd[:200])
             # 탭 ①과 나란히 비교
             check("탭5 탭① 비교 행 5개(기준+4)", page.locator("#lsVsWrap tbody tr").count() == 5,
                   page.locator("#lsVsWrap tbody tr").count())
             check("탭5 비교 기준행 강조", page.locator("#lsVsWrap tr.is-mine").count() == 1)
             vs_heads = page.locator("#lsVsWrap thead th").all_inner_texts()
             check("탭5 비교표 환급률·세제 열", "개시 환급률" in vs_heads and "세제·특징" in vs_heads, vs_heads)
-            check("탭5 비교표 일시납 환급률 129.8%", "129.8%" in page.locator("#lsVsWrap tr.is-mine").inner_text(),
+            check("탭5 비교표 일시납 환급률 127.5%", "127.5%" in page.locator("#lsVsWrap tr.is-mine").inner_text(),
                   page.locator("#lsVsWrap tr.is-mine").inner_text())
             check("탭5 비교 요약", "배" in txt(page, "#lsVsNote"), txt(page, "#lsVsNote")[:120])
-            # 보험사별 조건
-            check("탭5 보험사 조건 카드 4개", page.locator("#lsRules .rule-card").count() == 4)
+            # 보험사별 조건 + 판매채널 카드
+            check("탭5 보험사 조건 카드 5개(판매채널 포함)", page.locator("#lsRules .rule-card").count() == 5,
+                  page.locator("#lsRules .rule-card").count())
+            rules_txt = txt(page, "#lsRules")
+            check("탭5 판매채널 카드에 대면·방카 수치", "판매채널 — 설계사 대면" in rules_txt and "방카" in rules_txt)
+            check("탭5 판매채널 카드에 3년차 없음 안내", "대면 채널에는 3년차 개시 상품이 없습니다" in rules_txt)
             # 전체 98종
             page.click("#tab-lumpsum details.adv > summary")
             page.wait_for_timeout(300)
             check("탭5 전체 98종 표", page.locator("#lsAllWrap tbody tr").count() == len(LS_PRODUCTS),
                   page.locator("#lsAllWrap tbody tr").count())
+            check("탭5 전체 표 채널 병기", "대면+방카+기타" in page.locator("#lsAllWrap tbody").inner_text())
             page.screenshot(path=os.path.join(SHOT, "18-tab5-일시납.png"), full_page=True)
 
+            # --- 판매채널 전환 ---
+            page.click('#lsChannel [data-channel="방카"]')
+            page.wait_for_timeout(450)
+            check("탭5 방카 전환 카드 8개", page.locator(".ls-card").count() == 8, page.locator(".ls-card").count())
+            check("탭5 방카 전환 시 KB 카드 등장", page.locator('.ls-card[data-id="ls36"]').count() == 1)
+            check(f"탭5 방카 5년차 표 {len(LS_BANK_H)}+1행",
+                  page.locator("#lsTableWrap tbody tr").count() == len(LS_BANK_H) + 1,
+                  page.locator("#lsTableWrap tbody tr").count())
+            check("탭5 방카 기준상품 유지(한화, 공용 채널)", page.evaluate("window.__lumpsumTab.state()")["pick"] == "ls19")
+            page.screenshot(path=os.path.join(SHOT, "21-tab5-방카채널.png"), full_page=True)
+
+            page.click('#lsChannel [data-channel="CM"]')
+            page.wait_for_timeout(450)
+            check("탭5 CM 전환 카드 4개", page.locator(".ls-card").count() == 4, page.locator(".ls-card").count())
+            check("탭5 CM 전환 시 기준상품 자동 교체", page.evaluate("window.__lumpsumTab.state()")["pick"] in
+                  [p["id"] for p in LS_PRODUCTS if ls_in(p, "CM")], page.evaluate("window.__lumpsumTab.state()")["pick"])
+            check("탭5 CM 전환 시 삼성 한번에내는 카드", page.locator('.ls-card[data-id="ls13"]').count() == 1)
+            page.screenshot(path=os.path.join(SHOT, "22-tab5-CM채널.png"), full_page=True)
+
+            page.click('#lsChannel [data-channel="TM"]')
+            page.wait_for_timeout(350)
+            check(f"탭5 TM·기타 전환 {len(LS_TM)}종 · 안내 문구",
+                  page.locator("#lsTableWrap tbody tr").count() >= 1 and
+                  f"{len(LS_TM)}종" in txt(page, "#lsChannelNote"), txt(page, "#lsChannelNote")[:80])
+            page.click('#lsChannel [data-channel="all"]')
+            page.wait_for_timeout(350)
+            check(f"탭5 전체 채널 카드 {LS_CARDS}개", page.locator(".ls-card").count() == LS_CARDS,
+                  page.locator(".ls-card").count())
+            check(f"탭5 전체 채널 5년차 표 {len(LS_HYBRID)}+1행",
+                  page.locator("#lsTableWrap tbody tr").count() == len(LS_HYBRID) + 1,
+                  page.locator("#lsTableWrap tbody tr").count())
+
+            # 대면으로 복귀 후 조건별 검증
+            page.click('#lsChannel [data-channel="대면"]')
+            page.wait_for_timeout(350)
+            page.select_option("#lsPick", "ls19")
+            page.wait_for_timeout(250)
             # 개시 시점 바꾸기 — 3년차
             page.click('#lsStart [data-start="s3"]')
             page.wait_for_timeout(400)
-            check("탭5 3년차 카드 9개", page.locator(".ls-card").count() == LS_CARDS)
-            check("탭5 3년차 메트라이프 303,939원",
-                  "303,939원" in page.locator('.ls-card[data-id="ls71"]').inner_text(),
-                  page.locator('.ls-card[data-id="ls71"]').inner_text())
-            check("탭5 3년차 보간 추정 배지",
-                  "보간 추정" in page.locator('.ls-card[data-id="ls71"]').inner_text())
-            check("탭5 3년차 개시 불가 8개", page.locator('.ls-card .ls-hero.is-none').count() == LS_CARDS - 1,
-                  page.locator('.ls-card .ls-hero.is-none').count())
+            check("탭5 3년차 카드 4개 유지", page.locator(".ls-card").count() == 4)
+            check("탭5 3년차 대면 4개 모두 개시 불가", page.locator(".ls-card .ls-hero.is-none").count() == 4,
+                  page.locator(".ls-card .ls-hero.is-none").count())
+            check("탭5 3년차 안내에 채널 한계 명시", "3년차 개시 상품이 없습니다" in txt(page, "#lsStartNote"),
+                  txt(page, "#lsStartNote"))
+            page.click('#lsFilter [data-filter="metro3"]')
+            page.wait_for_timeout(300)
+            check("탭5 대면 3년차 필터 = 빈 안내", "이 조건에 해당하는 상품이 없습니다" in txt(page, "#lsTableWrap"))
+            page.click('#lsFilter [data-filter="hybrid"]')
+            page.wait_for_timeout(250)
             page.screenshot(path=os.path.join(SHOT, "19-tab5-3년차.png"), full_page=True)
             # 55세 이후 — 비과세
             page.click('#lsStart [data-start="s55"]')
             page.wait_for_timeout(400)
             check("탭5 만 55세 비과세 요약", "비과세" in txt(page, "#lsSummary") and "0원" in txt(page, "#lsSummary"),
                   txt(page, "#lsSummary"))
-            # 10년차 — 삼성 실측 459,490원
+            # 10년차 — 5년 적립액 기준
             page.click('#lsStart [data-start="s10"]')
             page.wait_for_timeout(400)
-            check("탭5 10년차 삼성 실측 459,490원",
-                  "459,490원" in page.locator('.ls-card[data-id="ls13"]').inner_text(),
-                  page.locator('.ls-card[data-id="ls13"]').inner_text())
+            check("탭5 10년차 한화 카드 473,689원",
+                  "473,689원" in page.locator('.ls-card[data-id="ls19"]').inner_text(),
+                  page.locator('.ls-card[data-id="ls19"]').inner_text())
             # 원금 바꾸기 — 5,000만원
             page.click('#lsStart [data-start="s5"]')
             page.wait_for_timeout(300)
             page.fill("#lsPrincipal", "50,000,000")
             page.dispatch_event("#lsPrincipal", "input")
             page.wait_for_timeout(400)
-            check("탭5 원금 5,000만 → 적립 6,490만원",
-                  "6,490만원" in txt(page, "#lsSummary"), txt(page, "#lsSummary"))
+            check("탭5 원금 5,000만 → 적립 6,373만원",
+                  "6,373만원" in txt(page, "#lsSummary"), txt(page, "#lsSummary"))
             check("탭5 원금 변경 시 카드 갱신",
-                  "201,190원" in page.locator('.ls-card[data-id="ls36"]').inner_text(),
-                  page.locator('.ls-card[data-id="ls36"]').inner_text())
-            # 필터 — 전체 98종
-            page.click('#lsFilter [data-filter="all"]')
-            page.wait_for_timeout(400)
-            check("탭5 필터 전체 98+3행", page.locator("#lsTableWrap tbody tr").count() == len(LS_PRODUCTS) + 3,
-                  page.locator("#lsTableWrap tbody tr").count())
-            page.click('#lsFilter [data-filter="metro3"]')
-            page.wait_for_timeout(300)
-            check(f"탭5 3년차 개시 {len(LS_METRO)}종 필터",
-                  page.locator("#lsTableWrap tbody tr").count() == len(LS_METRO) + 1,
-                  page.locator("#lsTableWrap tbody tr").count())
-            page.click('#lsFilter [data-filter="hybrid"]')
+                  "197,548원" in page.locator('.ls-card[data-id="ls19"]').inner_text(),
+                  page.locator('.ls-card[data-id="ls19"]').inner_text())
             page.fill("#lsPrincipal", "100,000,000")
             page.dispatch_event("#lsPrincipal", "input")
             page.wait_for_timeout(300)
+            page.click('#lsFilter [data-filter="all"]')
+            page.wait_for_timeout(350)
+            mem_groups = len({ls_group(p) for p in LS_MEM})
+            check(f"탭5 대면 전체 {len(LS_MEM)}종+{mem_groups}그룹",
+                  page.locator("#lsTableWrap tbody tr").count() == len(LS_MEM) + mem_groups,
+                  page.locator("#lsTableWrap tbody tr").count())
+            page.click('#lsFilter [data-filter="hybrid"]')
+            page.wait_for_timeout(250)
 
             # ============ 9. A4 리포트 (탭 5에서 인쇄해도 탭 1 리포트) ============
             page.emulate_media(media="print")
@@ -506,9 +592,11 @@ def main():
             mp.wait_for_timeout(600)
             check("모바일 탭5 가로 스크롤 없음", mp.evaluate("document.documentElement.scrollWidth") <= 400,
                   mp.evaluate("document.documentElement.scrollWidth"))
-            check(f"모바일 탭5 카드 {LS_CARDS}개", mp.locator(".ls-card").count() == LS_CARDS,
+            check("모바일 탭5 대면 카드 4개", mp.locator(".ls-card").count() == 4,
                   mp.locator(".ls-card").count())
-            check("모바일 탭5 요약 계산", "402,380원" in mp.locator("#lsSummary").inner_text())
+            check("모바일 탭5 요약 계산(대면 기본)", "395,095원" in mp.locator("#lsSummary").inner_text(),
+                  mp.locator("#lsSummary").inner_text()[:140])
+            check("모바일 탭5 판매채널 버튼 5개", mp.locator("#lsChannel .seg-btn").count() == 5)
             check("모바일 탭5 카드 1열", mp.evaluate("getComputedStyle(document.querySelector('#lsCards')).gridTemplateColumns.split(' ').length") == 1)
             mp.screenshot(path=os.path.join(SHOT, "20-mobile-tab5.png"), full_page=True)
             m.close()

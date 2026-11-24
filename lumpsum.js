@@ -54,13 +54,44 @@
     return v.toFixed(digits == null ? 2 : digits) + '%';
   }
 
+  /* ---------- 판매채널 ---------- */
+  var CH_ORDER = META.channelOrder || ['대면', '방카', 'CM', 'TM', '기타'];
+  var CH_DEF = META.channelDef || {};
+  var CH_COUNTS = META.channelCounts || {};
+  var CH_FILTERS = [
+    { key: 'all', label: '전체 채널' },
+    { key: '대면', label: '설계사 대면' },
+    { key: '방카', label: '방카슈랑스' },
+    { key: 'CM', label: 'CM(온라인)' },
+    { key: 'TM', label: 'TM·기타' }
+  ];
+  function channelsOf(p) { return (p && p.channels) || []; }
+  function inChannel(p) {
+    if (state.channel === 'all') return true;
+    var ch = channelsOf(p);
+    if (state.channel === 'TM') return ch.indexOf('TM') >= 0 || ch.indexOf('기타') >= 0;
+    return ch.indexOf(state.channel) >= 0;
+  }
+  function channelPool() { return PRODUCTS.filter(inChannel); }
+  function channelName(key) {
+    var f = CH_FILTERS.filter(function (x) { return x.key === key; })[0];
+    return f ? f.label : '전체 채널';
+  }
+  function channelCountOf(key) {
+    if (key === 'all') return PRODUCTS.length;
+    if (key === 'TM') return CH_COUNTS['TM'] != null || CH_COUNTS['기타'] != null
+      ? PRODUCTS.filter(function (p) { var c = channelsOf(p); return c.indexOf('TM') >= 0 || c.indexOf('기타') >= 0; }).length
+      : 0;
+    return CH_COUNTS[key] || 0;
+  }
+
   /* ---------- 데이터 인덱스 ---------- */
   var BY_ID = {};
   PRODUCTS.forEach(function (p) { BY_ID[p.id] = p; });
   function pById(id) { return BY_ID[id] || null; }
 
   /* ---------- 상태 ---------- */
-  var state = { principal: 100000000, joinAge: 46, start: 's5', pick: 'ls36', filter: 'hybrid' };
+  var state = { principal: 100000000, joinAge: 46, start: 's5', pick: 'ls19', filter: 'hybrid', channel: '대면' };
 
   function load() {
     try {
@@ -73,14 +104,29 @@
       var ja = parseInt(s.joinAge, 10);
       if (ja >= 20 && ja <= 80) state.joinAge = ja;
       if (['s3', 's5', 's55', 's10'].indexOf(s.start) >= 0) state.start = s.start;
-      if (s.pick && pById(s.pick)) state.pick = s.pick;
       if (['all', 'hybrid', 'metro3', 'etc'].indexOf(s.filter) >= 0) state.filter = s.filter;
+      if (s.pick && pById(s.pick)) state.pick = s.pick;
+      if (s.channel && CH_FILTERS.some(function (f) { return f.key === s.channel; })) state.channel = s.channel;
     } catch (e) { /* 기본값 */ }
   }
   function save() {
     try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) { /* 무시 */ }
   }
   load();
+  /* 저장된 기준 상품이 지금 채널에 없으면 그 채널에서 가장 센 상품으로 맞춘다. */
+  function bestPickForChannel() {
+    var pool = channelPool().filter(function (p) { return p.rate5 != null && p.startYears != null && p.startYears <= 5; })
+      .sort(function (a, b) { return (b.rate5 || 0) - (a.rate5 || 0); });
+    if (!pool.length) {
+      pool = channelPool().filter(function (p) { return p.rate5 != null; })
+        .sort(function (a, b) { return (b.rate5 || 0) - (a.rate5 || 0); });
+    }
+    return pool.length ? pool[0].id : null;
+  }
+  if (!pById(state.pick) || !inChannel(pById(state.pick))) {
+    var bp = bestPickForChannel();
+    if (bp) state.pick = bp;
+  }
   if (!pById(state.pick)) state.pick = (D.cards && D.cards[0]) || (PRODUCTS[0] && PRODUCTS[0].id);
 
   /* ---------- 개시 시점 ---------- */
@@ -195,8 +241,11 @@
     var note = $('#lsStartNote');
     if (note) {
       var o = startOpt();
+      var metroInChannel = channelPool().filter(function (p) { return groupOf(p) === 'metro3'; }).length;
+      var noMetro = state.channel !== 'all' && !metroInChannel;
       note.innerHTML = o.key === 's3'
-        ? '<b>3년차(49세) 개시는 98종 중 메트라이프 이율확정 3년형에만</b> 규정상 열려 있습니다. 다른 상품은 최소거치 5년이라 계산기가 49세 개시를 거절합니다.'
+        ? '<b>3년차(' + o.age + '세) 개시는 98종 중 메트라이프 이율확정 3년형에만</b> 규정상 열려 있습니다. 다른 상품은 최소거치 5년이라 계산기가 49세 개시를 거절합니다.'
+          + (noMetro ? ' <b>지금 선택한 ' + esc(channelName(state.channel)) + ' 채널에는 3년차 개시 상품이 없습니다</b> — 메트라이프 3년형은 방카·CM 판매입니다.' : '')
         : o.key === 's5'
           ? '5년 확정이율(4.1~4.84%)이 끝나 공시이율(2.71%)로 떨어지는 지점입니다. <b>5년차엔 인출 또는 연금개시</b>로 설계하는 이유입니다. 만 55세 미만·10년 미만이라 보험차익은 <b>이자소득세 15.4%</b> 대상입니다.'
           : o.key === 's55'
@@ -215,6 +264,7 @@
     var acc = pick ? accAt(pick, opt) : null;
     var tax = acc != null && opt.age < TAX_FREE_AGE ? Math.max(0, acc - state.principal) * TAX_RATE : 0;
     host.innerHTML = ''
+      + '<div class="summary-item"><span>판매채널</span><b>' + esc(channelName(state.channel)) + '</b></div>'
       + '<div class="summary-item"><span>일시납 원금</span><b>' + esc(won(state.principal)) + '</b></div>'
       + '<div class="summary-item"><span>가입나이</span><b>' + state.joinAge + '세</b></div>'
       + '<div class="summary-item"><span>개시 시점</span><b>' + esc(startLabel(opt)) + '</b></div>'
@@ -225,8 +275,22 @@
   }
 
   /* ---------- 상품 카드 ---------- */
+  /* 선택한 채널의 대표 카드만 보인다. 채널에 카드가 4개 미만이면 그 채널의 5년 적립률 상위 상품으로 채운다. */
   function cardList() {
-    var cards = (D.cards || []).map(pById).filter(Boolean);
+    var cards = (D.cards || []).map(pById).filter(function (p) { return p && inChannel(p); });
+    var min = 4;
+    if (cards.length < min) {
+      var extra = channelPool().filter(function (p) { return cards.indexOf(p) < 0 && p.rate5 != null; });
+      extra.sort(function (a, b) {
+        var oa = (a.startYears != null && a.startYears <= 5) ? 0 : 1;
+        var ob = (b.startYears != null && b.startYears <= 5) ? 0 : 1;
+        if (oa !== ob) return oa - ob;
+        return (b.rate5 || 0) - (a.rate5 || 0);
+      });
+      extra.forEach(function (p) {
+        if (cards.length < min) cards.push(p);
+      });
+    }
     cards.sort(function (a, b) {
       var ga = a.group === 'metro3' ? 1 : 0, gb = b.group === 'metro3' ? 1 : 0;
       if (ga !== gb) return ga - gb;
@@ -256,7 +320,7 @@
           + '<small>' + (p.startYears != null ? '최소 ' + p.startYears + '년차(' + (state.joinAge + p.startYears) + '세)부터' : '개시 조건 요약서 확인 필요') + '</small></div>';
       var src = pl ? srcBadge(pl.source, useOpt) : '<span class="ls-src is-none">' + (p.rate5 == null ? '미공시' : '개시 불가') + '</span>';
       return '<article class="ls-card' + (p.group === 'metro3' ? ' is-metro' : '') + '" data-id="' + esc(p.id) + '">'
-        + '<div class="ls-card-head"><div><h3>' + esc(p.name) + '</h3><p>' + esc(p.company) + ' · ' + esc(p.channel || '—') + '</p></div>' + src + '</div>'
+        + '<div class="ls-card-head"><div><h3>' + esc(p.name) + '</h3><p>' + esc(p.company) + ' · ' + esc(p.channelText || p.channel || '—') + '</p></div>' + src + '</div>'
         + hero
         + '<ul class="data-list">'
         + '<li><span>' + (p.group === 'metro3' ? '3년 확정이율' : '5년 확정이율') + '</span><b>' + (p.fixed != null ? '연복리 ' + p.fixed.toFixed(2) + '%' : (p.group === 'metro3' ? '3년 확정' : '요약서 미기재')) + '</b></li>'
@@ -269,7 +333,8 @@
     }).join('');
     var cn = $('#lsCardsNote');
     if (cn) {
-      cn.textContent = '원금 ' + won(state.principal) + ' · ' + startLabel(opt) + ' 기준' + (state.start === 's3' ? ' · 3년차 개시가 안 되는 상품은 대표 개시 시점으로 표시' : '');
+      cn.textContent = channelName(state.channel) + ' ' + cardList().length + '종 · 원금 ' + won(state.principal) + ' · ' + startLabel(opt) + ' 기준'
+        + (state.start === 's3' ? ' · 3년차 개시가 안 되는 상품은 대표 개시 시점으로 표시' : '');
     }
   }
 
@@ -290,6 +355,7 @@
   function rowsFor(filter) {
     var out = [];
     PRODUCTS.forEach(function (p) {
+      if (!inChannel(p)) return;
       var g = groupOf(p);
       if (filter !== 'all' && g !== filter) return;
       out.push(p);
@@ -320,6 +386,9 @@
 
     var body = '';
     var lastGroup = null;
+    if (!list.length) {
+      body = '<tr><td colspan="9" class="empty-note">' + esc(channelName(state.channel)) + ' 채널에는 이 조건에 해당하는 상품이 없습니다. 다른 채널이나 조건을 선택해 주세요.</td></tr>';
+    }
     list.forEach(function (p) {
       var g = groupOf(p);
       if (g !== lastGroup) {
@@ -338,7 +407,7 @@
       body += '<tr' + (pl && pl.monthly === best && best > 0 ? ' class="is-best"' : '') + '>'
         + '<th class="rowhead">' + esc(p.company) + '</th>'
         + '<td class="cell-name">' + esc(p.name) + '</td>'
-        + '<td class="ls-small">' + esc(p.channel || '—') + '</td>'
+        + '<td class="ls-small">' + esc(p.channelText || p.channel || '—') + '</td>'
         + '<td class="num">' + (p.fixed != null ? p.fixed.toFixed(2) + '%' : '—') + '</td>'
         + '<td class="num">' + pct(opt.years === 3 ? p.rate3 : p.rate5) + '</td>'
         + '<td class="num">' + esc(won(acc)) + '</td>'
@@ -351,11 +420,13 @@
     host.innerHTML = '<table class="ls-table">' + head + '<tbody>' + body + '</tbody></table>';
     var note = $('#lsTableNote');
     if (note) {
-      note.innerHTML = '적립률은 생명보험협회 공시실 저축성 요약공시(일시납 5,000만원·남자)의 보험사 제출값입니다. '
+      note.innerHTML = esc(channelName(state.channel)) + ' ' + list.length + '종 · '
+        + '적립률은 생명보험협회 공시실 저축성 요약공시(일시납 5,000만원·남자)의 보험사 제출값입니다. '
         + '연금액은 <b>' + esc(startLabel(opt)) + '</b> 기준이며 '
         + '<span class="ls-src is-measured">실측</span> 삼성 계산기 실측 · '
         + '<span class="ls-src is-disclosure">공시 환산</span> 적립액 × 실측 연금계수 · '
-        + '<span class="ls-src is-interp">보간 추정</span> 실측 3점 사이 보간값입니다.';
+        + '<span class="ls-src is-interp">보간 추정</span> 실측 3점 사이 보간값입니다. '
+        + '채널은 공시실 판매채널 표기 기준입니다.';
     }
   }
 
@@ -548,7 +619,24 @@
   function renderRules() {
     var host = $('#lsRules');
     if (!host) return;
-    host.innerHTML = RULES.map(function (r) {
+    var mem = PRODUCTS.filter(function (p) { return channelsOf(p).indexOf('대면') >= 0; });
+    var mem5 = mem.filter(function (p) { return p.startYears != null && p.startYears > 0 && p.startYears <= 5 && p.rate5 != null; })
+      .sort(function (a, b) { return (b.rate5 || 0) - (a.rate5 || 0); });
+    var nonMem = PRODUCTS.filter(function (p) {
+      return channelsOf(p).indexOf('대면') < 0 && p.startYears != null && p.startYears > 0 && p.startYears <= 5 && p.rate5 != null;
+    }).sort(function (a, b) { return (b.rate5 || 0) - (a.rate5 || 0); });
+    var dyn = {
+      name: '판매채널 — 설계사 대면 ' + mem.length + '종',
+      prod: '공시실 판매채널 표기 기준 · 방카 ' + (CH_COUNTS['방카'] || 0) + ' · CM ' + (CH_COUNTS['CM'] || 0) + ' · TM·기타 ' + (PRODUCTS.filter(function (p) { var c = channelsOf(p); return c.indexOf('TM') >= 0 || c.indexOf('기타') >= 0; }).length),
+      rules: [
+        '대면 채널 5년차 개시 가능 ' + mem5.length + '종 — 5년 적립률 상위: ' + mem5.slice(0, 5).map(function (p) { return p.name + ' ' + p.rate5.toFixed(2) + '%'; }).join(' · '),
+        '대면 채널에는 3년차 개시 상품이 없습니다 — 메트라이프 이율확정 3년형 3종은 방카슈랑스·CM 판매',
+        '대면으로 볼 수 없는 상위 상품: ' + nonMem.slice(0, 4).map(function (p) { return p.name + ' ' + p.rate5.toFixed(2) + '%(' + p.channelText + ')'; }).join(' · '),
+        '삼성 한번에내는·굴려받는·바로받는, 한화 부자되는 e연금, 흥국 하이브리드온라인은 CM 전용 — 대면 상담에서 직접 모집할 수 없습니다',
+        '채널은 보험사가 공시실에 제출한 표기입니다. GA 모집 가능 여부는 해당 보험사 모집채널·위촉 상태로 다시 확인하세요'
+      ]
+    };
+    host.innerHTML = RULES.concat([dyn]).map(function (r) {
       return '<div class="rule-card"><h3>' + esc(r.name) + '</h3>'
         + '<p class="rule-prod">' + esc(r.prod) + '</p>'
         + '<ul>' + r.rules.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>'
@@ -564,7 +652,7 @@
     var body = list.map(function (p) {
       return '<tr><th class="rowhead">' + esc(p.company) + '</th>'
         + '<td class="cell-name">' + esc(p.full) + '</td>'
-        + '<td class="ls-small">' + esc(p.channel || '—') + '</td>'
+        + '<td class="ls-small">' + esc(p.channelText || p.channel || '—') + '</td>'
         + '<td class="num">' + pct(p.rate3) + '</td>'
         + '<td class="num">' + pct(p.rate5) + '</td>'
         + '<td class="num">' + pct(p.rate10) + '</td>'
@@ -576,12 +664,20 @@
   }
 
   /* ---------- 기준 상품 선택 ---------- */
+  function pickList() {
+    return channelPool().filter(function (p) {
+      return p.rate5 != null && p.startYears != null && p.startYears <= 5;
+    }).sort(function (a, b) { return (b.rate5 || 0) - (a.rate5 || 0); });
+  }
+
   function renderPick() {
     var sel = $('#lsPick');
     if (!sel) return;
-    var list = PRODUCTS.filter(function (p) {
-      return p.rate5 != null && p.startYears != null && p.startYears <= 5;
-    }).sort(function (a, b) { return (b.rate5 || 0) - (a.rate5 || 0); });
+    var list = pickList();
+    if (!list.length) {
+      list = channelPool().filter(function (p) { return p.rate5 != null; })
+        .sort(function (a, b) { return (b.rate5 || 0) - (a.rate5 || 0); });
+    }
     sel.innerHTML = list.map(function (p) {
       return '<option value="' + esc(p.id) + '"' + (p.id === state.pick ? ' selected' : '') + '>'
         + esc(p.company + ' · ' + p.name) + ' (' + pct(p.rate5) + ')</option>';
@@ -590,11 +686,47 @@
     sel.value = state.pick;
   }
 
+  /* ---------- 판매채널 설정 ---------- */
+  function renderChannel() {
+    var box = $('#lsChannel');
+    if (!box) return;
+    box.innerHTML = CH_FILTERS.map(function (f) {
+      return '<button type="button" class="seg-btn' + (state.channel === f.key ? ' is-on' : '') + '" data-channel="' + f.key + '">'
+        + esc(f.label) + ' <em>' + channelCountOf(f.key) + '</em></button>';
+    }).join('');
+    $$('#lsChannel .seg-btn').forEach(function (b) {
+      b.addEventListener('click', function () {
+        state.channel = b.dataset.channel;
+        var bp = bestPickForChannel();
+        var cur = pById(state.pick);
+        if (!cur || !inChannel(cur)) state.pick = bp || state.pick;
+        renderChannel();
+        renderSummary(); renderCards(); renderFilter(); renderTable();
+        renderTax(); renderWithdraw(); renderPick(); renderVs();
+        save();
+      });
+    });
+    var note = $('#lsChannelNote');
+    if (note) {
+      var def = CH_DEF[state.channel];
+      var n = channelPool().length;
+      note.innerHTML = state.channel === 'all'
+        ? '<b>전체 채널</b> — 공시된 일시납 연금 ' + PRODUCTS.length + '종을 판매경로와 상관없이 모두 보여 줍니다. 상품을 직접 판매할 수 있는 채널인지는 채널 칸에서 확인하세요.'
+        : '<b>' + esc(def ? def.label : channelName(state.channel)) + '</b> ' + n + '종 — ' + esc(def ? def.desc : '')
+          + ' <span class="ls-small">(채널은 생보협회 공시실 판매채널 표기 기준. GA 판매 가능 여부는 보험사 모집채널 확인 필요)</span>';
+    }
+  }
+
   /* ---------- 필터 ---------- */
   function renderFilter() {
     var box = $('#lsFilter');
     if (!box) return;
-    var items = [['all', '전체 98종'], ['hybrid', '5년차 개시'], ['metro3', '3년차 개시'], ['etc', '개시 불가']];
+    var pool = channelPool();
+    var cnt = function (k) {
+      return k === 'all' ? pool.length : pool.filter(function (p) { return groupOf(p) === k; }).length;
+    };
+    var items = [['all', '전체 ' + cnt('all') + '종'], ['hybrid', '5년차 개시 ' + cnt('hybrid')],
+      ['metro3', '3년차 개시 ' + cnt('metro3')], ['etc', '개시 불가 ' + cnt('etc')]];
     box.innerHTML = items.map(function (it) {
       return '<button type="button" class="seg-btn' + (state.filter === it[0] ? ' is-on' : '') + '" data-filter="' + it[0] + '">' + it[1] + '</button>';
     }).join('');
@@ -621,6 +753,7 @@
   function renderAll() {
     renderQuick();
     renderStart();
+    renderChannel();
     renderSummary();
     renderCards();
     renderFilter();
@@ -695,6 +828,8 @@
     window.__lumpsumTab = {
       refresh: function () { syncInputs(); renderAll(); },
       state: function () { return JSON.parse(JSON.stringify(state)); },
+      channels: function () { return CH_FILTERS.map(function (f) { return { key: f.key, label: f.label, count: channelCountOf(f.key) }; }); },
+      products: function () { return PRODUCTS.map(function (p) { return { id: p.id, company: p.company, name: p.name, channels: p.channels, channelText: p.channelText, startYears: p.startYears, rate5: p.rate5 }; }); },
       calc: function (id, key) {
         var p = pById(id);
         var o = startOpt(key);

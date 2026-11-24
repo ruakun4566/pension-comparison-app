@@ -41,6 +41,11 @@ def main():
             pg.click('#tabbar .tab[data-tab="lumpsum"]')
             pg.wait_for_timeout(700)
             pg.screenshot(path=os.path.join(DOCS, "screenshot-tab5-lumpsum.png"), full_page=True)
+            pg.click('#lsChannel [data-channel="방카"]')
+            pg.wait_for_timeout(600)
+            pg.screenshot(path=os.path.join(DOCS, "screenshot-tab5-banka.png"), full_page=True)
+            pg.click('#lsChannel [data-channel="대면"]')
+            pg.wait_for_timeout(400)
 
             # 통합 사례: 기본 2개를 빼고 해외 4사·ITA 상품을 담아 4개 비교 → A4 리포트
             pg.click('#tabbar .tab[data-tab="compare"]')

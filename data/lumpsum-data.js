@@ -5,6 +5,53 @@ window.LUMPSUM_DATA = {
   "count": 98,
   "source": "생명보험협회 공시실 저축성 요약공시(일시납 5,000만원·남자) + 보험사 상품요약서 98종 원문",
   "basis": "적립률은 공시실이 보험사 제출값 그대로이며, 1억 원은 5,000만원 기준 적립률을 그대로 적용해 환산했습니다.",
+  "channelSource": "판매채널은 생명보험협회 공시실 「저축성 요약공시」의 판매채널 표기를 판매경로별로 나눈 값입니다(대면·방카·CM·TM·기타). 한 상품이 여러 채널에 걸치면 모두 표시합니다.",
+  "channelOrder": [
+   "대면",
+   "방카",
+   "CM",
+   "TM",
+   "기타"
+  ],
+  "channelDef": {
+   "대면": {
+    "key": "대면",
+    "label": "설계사 대면",
+    "short": "대면",
+    "desc": "보험설계사(GA·전속)가 고객을 직접 만나 판매하는 채널입니다. 공시실 표기 「대면채널」."
+   },
+   "방카": {
+    "key": "방카",
+    "label": "방카슈랑스",
+    "short": "방카",
+    "desc": "은행 창구에서 판매합니다. 설계사가 직접 모집할 수 없는 상품이 대부분입니다."
+   },
+   "CM": {
+    "key": "CM",
+    "label": "CM(온라인)",
+    "short": "CM",
+    "desc": "다이렉트·인터넷·모바일로 고객이 직접 가입합니다. 공시실 표기 「CM」."
+   },
+   "TM": {
+    "key": "TM",
+    "label": "TM(전화)",
+    "short": "TM",
+    "desc": "텔레마케팅으로 판매합니다."
+   },
+   "기타": {
+    "key": "기타",
+    "label": "기타",
+    "short": "기타",
+    "desc": "홈쇼핑 등 위 경로 외 판매입니다(공시실 표기 「기타」)."
+   }
+  },
+  "channelCounts": {
+   "대면": 38,
+   "방카": 61,
+   "CM": 12,
+   "TM": 3,
+   "기타": 3
+  },
   "engine": {
    "factor": [
     {
@@ -48,6 +95,10 @@ window.LUMPSUM_DATA = {
    "name": "삼성 굴려받는연금 2609",
    "full": "삼성 굴려받는연금보험(2609)(무배당,10년이후금리연동형)",
    "channel": "CM",
+   "channels": [
+    "CM"
+   ],
+   "channelText": "CM",
    "joinType": "거치",
    "rate1": 97.98,
    "rate3": 105.37,
@@ -67,6 +118,10 @@ window.LUMPSUM_DATA = {
    "name": "삼성 더한결같은행복",
    "full": "삼성 더한결같은행복연금보험(2610)(무배당,5년이후금리연동형)",
    "channel": "대면채널",
+   "channels": [
+    "대면"
+   ],
+   "channelText": "대면",
    "joinType": "거치",
    "rate1": 97.71,
    "rate3": 104.58,
@@ -86,6 +141,10 @@ window.LUMPSUM_DATA = {
    "name": "삼성 바로받는 연금(즉시형)",
    "full": "삼성 바로받는 연금보험[원금보장형](2511)(무배당)",
    "channel": "CM",
+   "channels": [
+    "CM"
+   ],
+   "channelText": "CM",
    "joinType": "즉시",
    "rate1": null,
    "rate3": null,
@@ -105,6 +164,10 @@ window.LUMPSUM_DATA = {
    "name": "삼성 에이스즉시 거치형(상속연금형)",
    "full": "삼성 에이스즉시연금보험(B2601)(무배당) [거치형, 상속연금형(만기형)]",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 100.26,
    "rate3": 101.75,
@@ -124,6 +187,10 @@ window.LUMPSUM_DATA = {
    "name": "삼성 에이스즉시 즉시형(상속연금형)",
    "full": "삼성 에이스즉시연금보험(B2601)(무배당) [즉시형, 상속연금형(만기형)]",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "즉시",
    "rate1": null,
    "rate3": null,
@@ -143,6 +210,10 @@ window.LUMPSUM_DATA = {
    "name": "삼성 연금보험 플러스 거치기본형",
    "full": "삼성 연금보험 플러스(2601)(거치기본형,무배당)",
    "channel": "대면채널",
+   "channels": [
+    "대면"
+   ],
+   "channelText": "대면",
    "joinType": "거치",
    "rate1": 99.9,
    "rate3": 102.87,
@@ -162,6 +233,10 @@ window.LUMPSUM_DATA = {
    "name": "삼성 파워즉시 거치형(상속연금형)",
    "full": "삼성 파워즉시연금보험(2601)(무배당) [거치형, 상속연금형]",
    "channel": "대면채널",
+   "channels": [
+    "대면"
+   ],
+   "channelText": "대면",
    "joinType": "거치",
    "rate1": 99.94,
    "rate3": 101.51,
@@ -181,6 +256,10 @@ window.LUMPSUM_DATA = {
    "name": "삼성 파워즉시 즉시형(상속연금형)",
    "full": "삼성 파워즉시연금보험(2601)(무배당) [즉시형, 상속연금형]",
    "channel": "대면채널",
+   "channels": [
+    "대면"
+   ],
+   "channelText": "대면",
    "joinType": "즉시",
    "rate1": null,
    "rate3": null,
@@ -200,6 +279,10 @@ window.LUMPSUM_DATA = {
    "name": "삼성 플래티넘행복 미보증(대면)",
    "full": "삼성 플래티넘행복연금보험(2601)(미보증형,무배당)",
    "channel": "대면채널",
+   "channels": [
+    "대면"
+   ],
+   "channelText": "대면",
    "joinType": "거치",
    "rate1": 99.9,
    "rate3": 102.87,
@@ -209,7 +292,7 @@ window.LUMPSUM_DATA = {
    "wd": 50,
    "startYears": 5,
    "group": "hybrid",
-   "note": "미보증형 · 인출 후 잔액 50% 유지",
+   "note": "5년 시점 최저적립액 미보증형 · 공시이율 부리 · 인출 후 잔액 50% 유지",
    "card": false,
    "pdf": "https://pub.insure.or.kr/FileDown.do?fileNo=43990&seq=9"
   },
@@ -219,6 +302,10 @@ window.LUMPSUM_DATA = {
    "name": "삼성 플래티넘행복 보증형(대면)",
    "full": "삼성 플래티넘행복연금보험(2601)(보증형,무배당)",
    "channel": "대면채널",
+   "channels": [
+    "대면"
+   ],
+   "channelText": "대면",
    "joinType": "거치",
    "rate1": 99.03,
    "rate3": 99.17,
@@ -228,7 +315,7 @@ window.LUMPSUM_DATA = {
    "wd": 50,
    "startYears": 5,
    "group": "hybrid",
-   "note": "5년 시점 보너스 반영형 · 인출 후 잔액 50% 유지",
+   "note": "5년 시점 최저계약자적립액 보증형(보증비용 부과) · 확정이율 아님 · 인출 후 잔액 50% 유지",
    "card": false,
    "pdf": "https://pub.insure.or.kr/FileDown.do?fileNo=40910&seq=14"
   },
@@ -238,6 +325,10 @@ window.LUMPSUM_DATA = {
    "name": "삼성 플래티넘행복 미보증(방카)",
    "full": "삼성 플래티넘행복연금보험(B2601)(미보증형,무배당)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 99.66,
    "rate3": 103.37,
@@ -247,7 +338,7 @@ window.LUMPSUM_DATA = {
    "wd": 50,
    "startYears": 5,
    "group": "hybrid",
-   "note": "미보증형 · 인출 후 잔액 50% 유지",
+   "note": "5년 시점 최저적립액 미보증형 · 공시이율 부리 · 인출 후 잔액 50% 유지",
    "card": false,
    "pdf": "https://pub.insure.or.kr/FileDown.do?fileNo=40912&seq=12"
   },
@@ -257,6 +348,10 @@ window.LUMPSUM_DATA = {
    "name": "삼성 플래티넘행복 보증형(방카)",
    "full": "삼성 플래티넘행복연금보험(B2601)(보증형,무배당)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 98.79,
    "rate3": 99.67,
@@ -266,7 +361,7 @@ window.LUMPSUM_DATA = {
    "wd": 50,
    "startYears": 5,
    "group": "hybrid",
-   "note": "5년 시점 보너스 반영형 · 확정이율 요약서 미기재 · 인출 후 잔액 50% 유지",
+   "note": "5년 시점 최저계약자적립액 보증형(보증비용 부과) · 확정이율 아님 · 인출 후 잔액 50% 유지",
    "card": true,
    "pdf": "https://pub.insure.or.kr/FileDown.do?fileNo=40916&seq=12"
   },
@@ -276,6 +371,10 @@ window.LUMPSUM_DATA = {
    "name": "삼성 한번에내는연금 (연금강화·CM)",
    "full": "삼성 한번에내는연금보험(2610)(무배당,5년이후금리연동형)",
    "channel": "CM",
+   "channels": [
+    "CM"
+   ],
+   "channelText": "CM",
    "joinType": "거치",
    "rate1": 99.31,
    "rate3": 107.42,
@@ -299,6 +398,11 @@ window.LUMPSUM_DATA = {
    "name": "한화 바로연금보험(즉시형)",
    "full": "한화생명 바로연금보험 무배당",
    "channel": "대면채널 방카슈랑스",
+   "channels": [
+    "대면",
+    "방카"
+   ],
+   "channelText": "대면+방카",
    "joinType": "즉시",
    "rate1": null,
    "rate3": null,
@@ -308,7 +412,7 @@ window.LUMPSUM_DATA = {
    "wd": null,
    "startYears": 0,
    "group": "etc",
-   "note": "",
+   "note": "즉시형 — 종신·상속 · 중도인출 개념 없음",
    "card": false,
    "pdf": "https://pub.insure.or.kr/FileDown.do?fileNo=43738&seq=2"
   },
@@ -318,6 +422,10 @@ window.LUMPSUM_DATA = {
    "name": "한화 부자되는 e연금 1종 연금강화",
    "full": "한화생명 부자되는 e연금보험 무배당(1종(연금강화형))",
    "channel": "CM",
+   "channels": [
+    "CM"
+   ],
+   "channelText": "CM",
    "joinType": "거치",
    "rate1": 96.88,
    "rate3": 104.61,
@@ -337,6 +445,10 @@ window.LUMPSUM_DATA = {
    "name": "한화 부자되는 e연금 2종 기본",
    "full": "한화생명 부자되는 e연금보험 무배당(2종(기본형))",
    "channel": "CM",
+   "channels": [
+    "CM"
+   ],
+   "channelText": "CM",
    "joinType": "거치",
    "rate1": 101.01,
    "rate3": 109.1,
@@ -356,16 +468,21 @@ window.LUMPSUM_DATA = {
    "name": "한화 스마트V연금보험",
    "full": "한화생명 스마트V연금보험 무배당(기본형, 가족사랑형)",
    "channel": "대면채널 방카슈랑스",
+   "channels": [
+    "대면",
+    "방카"
+   ],
+   "channelText": "대면+방카",
    "joinType": "거치",
    "rate1": 99.82,
    "rate3": 104.33,
    "rate5": 110.35,
    "rate10": 126.25,
    "fixed": null,
-   "wd": null,
-   "startYears": null,
-   "group": "etc",
-   "note": "개시·인출 조건 요약서 확인 필요",
+   "wd": 50,
+   "startYears": 5,
+   "group": "hybrid",
+   "note": "거치형 가입최고나이=개시나이−5 → 5년차 개시 가능 · 인출 1개월 후 50%·잔액 30%",
    "card": false,
    "pdf": "https://pub.insure.or.kr/FileDown.do?fileNo=34147&seq=13"
   },
@@ -375,6 +492,11 @@ window.LUMPSUM_DATA = {
    "name": "한화 스마트하이브리드 기본",
    "full": "한화생명 스마트하이브리드연금보험 무배당(기본형)",
    "channel": "대면채널 방카슈랑스",
+   "channels": [
+    "대면",
+    "방카"
+   ],
+   "channelText": "대면+방카",
    "joinType": "거치",
    "rate1": 101.5,
    "rate3": 110.61,
@@ -384,7 +506,7 @@ window.LUMPSUM_DATA = {
    "wd": 50,
    "startYears": 5,
    "group": "hybrid",
-   "note": "",
+   "note": "인출 1개월 후·연 12회·50% · 잔액 30% · 확정 4.81%",
    "card": false,
    "pdf": "https://pub.insure.or.kr/FileDown.do?fileNo=44476&seq=10"
   },
@@ -394,6 +516,11 @@ window.LUMPSUM_DATA = {
    "name": "한화 스마트하이브리드 연금강화",
    "full": "한화생명 스마트하이브리드연금보험 무배당(연금강화형)",
    "channel": "대면채널 방카슈랑스",
+   "channels": [
+    "대면",
+    "방카"
+   ],
+   "channelText": "대면+방카",
    "joinType": "거치",
    "rate1": 98.23,
    "rate3": 107.01,
@@ -413,6 +540,10 @@ window.LUMPSUM_DATA = {
    "name": "교보 바로받는웰스 거치형",
    "full": "(무)교보바로받는웰스연금보험(거치형)",
    "channel": "대면채널",
+   "channels": [
+    "대면"
+   ],
+   "channelText": "대면",
    "joinType": "거치",
    "rate1": 99.34,
    "rate3": 103.92,
@@ -432,6 +563,10 @@ window.LUMPSUM_DATA = {
    "name": "교보 바로받는웰스 즉시형",
    "full": "(무)교보바로받는웰스연금보험(즉시형)",
    "channel": "대면채널",
+   "channels": [
+    "대면"
+   ],
+   "channelText": "대면",
    "joinType": "즉시",
    "rate1": null,
    "rate3": null,
@@ -441,7 +576,7 @@ window.LUMPSUM_DATA = {
    "wd": null,
    "startYears": 0,
    "group": "etc",
-   "note": "",
+   "note": "즉시형 — 종신 12/20/30년·100세 보증 · 중도인출 개념 없음",
    "card": false,
    "pdf": "https://pub.insure.or.kr/FileDown.do?fileNo=39130&seq=6"
   },
@@ -451,6 +586,10 @@ window.LUMPSUM_DATA = {
    "name": "교보 개인연금저축 연금보험",
    "full": "개인연금저축교보로연금보험",
    "channel": "대면채널",
+   "channels": [
+    "대면"
+   ],
+   "channelText": "대면",
    "joinType": "즉시",
    "rate1": 102.06,
    "rate3": null,
@@ -460,7 +599,7 @@ window.LUMPSUM_DATA = {
    "wd": null,
    "startYears": null,
    "group": "etc",
-   "note": "세제적격 연금저축 — 별도 규정",
+   "note": "세제적격 연금저축(계약이전 전용) — 개시나이 만 55~70세 · 가입나이 ≤ 개시나이−1",
    "card": false,
    "pdf": "https://pub.insure.or.kr/FileDown.do?fileNo=13859&seq=19"
   },
@@ -470,6 +609,10 @@ window.LUMPSUM_DATA = {
    "name": "교보 개인연금저축 연금보험",
    "full": "개인연금저축교보로연금보험",
    "channel": "대면채널",
+   "channels": [
+    "대면"
+   ],
+   "channelText": "대면",
    "joinType": "거치",
    "rate1": 102.06,
    "rate3": null,
@@ -479,7 +622,7 @@ window.LUMPSUM_DATA = {
    "wd": null,
    "startYears": null,
    "group": "etc",
-   "note": "세제적격 연금저축 — 별도 규정",
+   "note": "세제적격 연금저축(계약이전 전용) — 개시나이 만 55~70세 · 가입나이 ≤ 개시나이−1",
    "card": false,
    "pdf": "https://pub.insure.or.kr/FileDown.do?fileNo=13857&seq=19"
   },
@@ -489,6 +632,10 @@ window.LUMPSUM_DATA = {
    "name": "교보 바로받는연금 [B] 즉시형",
    "full": "교보바로받는연금보험(무배당)[B]",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "즉시",
    "rate1": null,
    "rate3": null,
@@ -508,6 +655,10 @@ window.LUMPSUM_DATA = {
    "name": "교보 하이브리드 거치(대면)",
    "full": "교보하이브리드연금보험 (무배당,거치형)",
    "channel": "대면채널",
+   "channels": [
+    "대면"
+   ],
+   "channelText": "대면",
    "joinType": "거치",
    "rate1": 101.62,
    "rate3": 110.58,
@@ -517,7 +668,7 @@ window.LUMPSUM_DATA = {
    "wd": 50,
    "startYears": 5,
    "group": "hybrid",
-   "note": "",
+   "note": "인출 1개월 후·50% · 수수료 0.2%/2천원(연 4회 면제)",
    "card": false,
    "pdf": "https://pub.insure.or.kr/FileDown.do?fileNo=35089&seq=41"
   },
@@ -527,6 +678,10 @@ window.LUMPSUM_DATA = {
    "name": "교보 하이브리드 [B] 거치(방카)",
    "full": "교보하이브리드연금보험 [B](무배당,거치형)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 101.87,
    "rate3": 110.59,
@@ -546,6 +701,10 @@ window.LUMPSUM_DATA = {
    "name": "신한 SOL메이트 기본(방카)",
    "full": "SOL메이트하이브리드연금보험(무배당)(기본형)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 101.04,
    "rate3": 108.63,
@@ -565,6 +724,10 @@ window.LUMPSUM_DATA = {
    "name": "신한 SOL메이트 연금강화(방카)",
    "full": "SOL메이트하이브리드연금보험(무배당)(연금강화형)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 98.58,
    "rate3": 107.97,
@@ -584,6 +747,10 @@ window.LUMPSUM_DATA = {
    "name": "신한 SOL메이트 기본(대면)",
    "full": "신한SOL메이트하이브리드연금보험(무배당)(기본형)",
    "channel": "대면채널",
+   "channels": [
+    "대면"
+   ],
+   "channelText": "대면",
    "joinType": "거치",
    "rate1": 101.04,
    "rate3": 108.63,
@@ -593,7 +760,7 @@ window.LUMPSUM_DATA = {
    "wd": 50,
    "startYears": 5,
    "group": "hybrid",
-   "note": "",
+   "note": "대면판 · 인출 6개월 후·50% · 잔액 30% · 확정 4.10%",
    "card": false,
    "pdf": "https://pub.insure.or.kr/FileDown.do?fileNo=44906&seq=12"
   },
@@ -603,6 +770,10 @@ window.LUMPSUM_DATA = {
    "name": "신한 SOL메이트 연금강화(대면)",
    "full": "신한SOL메이트하이브리드연금보험(무배당)(연금강화형)",
    "channel": "대면채널",
+   "channels": [
+    "대면"
+   ],
+   "channelText": "대면",
    "joinType": "거치",
    "rate1": 98.58,
    "rate3": 107.97,
@@ -612,7 +783,7 @@ window.LUMPSUM_DATA = {
    "wd": 50,
    "startYears": 5,
    "group": "hybrid",
-   "note": "",
+   "note": "대면판 · 인출 6개월 후·50% · 잔액 30% · 확정 4.10%",
    "card": false,
    "pdf": "https://pub.insure.or.kr/FileDown.do?fileNo=44908&seq=10"
   },
@@ -622,6 +793,11 @@ window.LUMPSUM_DATA = {
    "name": "신한 The부자만들기 기본",
    "full": "신한The부자만들기연금보험(무배당)(기본형)",
    "channel": "대면채널 TM",
+   "channels": [
+    "대면",
+    "TM"
+   ],
+   "channelText": "대면+TM",
    "joinType": "거치",
    "rate1": 99.46,
    "rate3": 103.73,
@@ -631,7 +807,7 @@ window.LUMPSUM_DATA = {
    "wd": null,
    "startYears": 10,
    "group": "etc",
-   "note": "최소거치 10년 — 5년차 개시 불가",
+   "note": "최소거치 10년 — 5년차 개시 불가 · 요약서에 중도인출 조항 없음(약관 확인) · 개시 보너스 2.0%",
    "card": false,
    "pdf": "https://pub.insure.or.kr/FileDown.do?fileNo=39949&seq=4"
   },
@@ -641,6 +817,11 @@ window.LUMPSUM_DATA = {
    "name": "신한 The부자만들기 연금강화",
    "full": "신한The부자만들기연금보험(무배당)(연금강화형)",
    "channel": "대면채널 TM",
+   "channels": [
+    "대면",
+    "TM"
+   ],
+   "channelText": "대면+TM",
    "joinType": "거치",
    "rate1": 89.21,
    "rate3": 92.96,
@@ -650,7 +831,7 @@ window.LUMPSUM_DATA = {
    "wd": null,
    "startYears": 10,
    "group": "etc",
-   "note": "최소거치 10년 — 5년차 개시 불가",
+   "note": "최소거치 10년 — 5년차 개시 불가 · 요약서에 중도인출 조항 없음(약관 확인) · 개시 보너스 2.0%",
    "card": false,
    "pdf": "https://pub.insure.or.kr/FileDown.do?fileNo=39953&seq=4"
   },
@@ -660,6 +841,10 @@ window.LUMPSUM_DATA = {
    "name": "신한 프리미어 기본",
    "full": "프리미어하이브리드연금보험(무배당)(기본형)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 101.04,
    "rate3": 108.63,
@@ -679,6 +864,10 @@ window.LUMPSUM_DATA = {
    "name": "신한 프리미어 연금강화",
    "full": "프리미어하이브리드연금보험(무배당)(연금강화형)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 98.58,
    "rate3": 107.97,
@@ -698,6 +887,10 @@ window.LUMPSUM_DATA = {
    "name": "KB 하이브리드 5년형 기본",
    "full": "KB 하이브리드연금보험 무배당(5년형)(기본형)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 102.56,
    "rate3": 112.8,
@@ -717,6 +910,10 @@ window.LUMPSUM_DATA = {
    "name": "KB 하이브리드 5년형 연금강화",
    "full": "KB 하이브리드연금보험 무배당(5년형)(연금강화형)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 100.92,
    "rate3": 114.46,
@@ -736,6 +933,10 @@ window.LUMPSUM_DATA = {
    "name": "KB 하이브리드 7년형 기본",
    "full": "KB 하이브리드연금보험 무배당(7년형)(기본형)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 102.52,
    "rate3": 112.71,
@@ -755,6 +956,10 @@ window.LUMPSUM_DATA = {
    "name": "KB 하이브리드 7년형 연금강화",
    "full": "KB 하이브리드연금보험 무배당(7년형)(연금강화형)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 100.13,
    "rate3": 112.01,
@@ -774,6 +979,11 @@ window.LUMPSUM_DATA = {
    "name": "NH 내일의힘 즉시연금",
    "full": "내일의힘NH즉시연금보험(무배당)_2404",
    "channel": "대면채널 방카슈랑스",
+   "channels": [
+    "대면",
+    "방카"
+   ],
+   "channelText": "대면+방카",
    "joinType": "즉시",
    "rate1": null,
    "rate3": null,
@@ -793,6 +1003,10 @@ window.LUMPSUM_DATA = {
    "name": "NH 하나로든든NH 일시납",
    "full": "하나로든든NH연금보험(무배당,일시납)_2603",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 101.58,
    "rate3": 110.46,
@@ -812,16 +1026,21 @@ window.LUMPSUM_DATA = {
    "name": "NH 행복열매 2404 일시납",
    "full": "행복열매NH연금보험(무배당)_2404_(일시납)",
    "channel": "대면채널 방카슈랑스",
+   "channels": [
+    "대면",
+    "방카"
+   ],
+   "channelText": "대면+방카",
    "joinType": "거치",
    "rate1": 99.64,
    "rate3": 103.44,
    "rate5": 107.56,
    "rate10": null,
    "fixed": null,
-   "wd": null,
+   "wd": 100,
    "startYears": 5,
    "group": "hybrid",
-   "note": "중도인출 1회 한도가 사실상 100% · 생활자금자동인출(3년 경과 후)",
+   "note": "1회 한도 해약환급금 전액 · 잔액 30% · 10년 내 누적≤납입보험료 · 생활자금자동인출(3년 경과 후)",
    "card": false,
    "pdf": "https://pub.insure.or.kr/FileDown.do?fileNo=40869&seq=4"
   },
@@ -831,6 +1050,10 @@ window.LUMPSUM_DATA = {
    "name": "흥국 하이브리드온라인 기본(CM)",
    "full": "(무)흥국생명 하이브리드온라인연금보험(기본형)",
    "channel": "CM",
+   "channels": [
+    "CM"
+   ],
+   "channelText": "CM",
    "joinType": "거치",
    "rate1": null,
    "rate3": null,
@@ -850,6 +1073,10 @@ window.LUMPSUM_DATA = {
    "name": "흥국 하이브리드온라인 연금강화(CM)",
    "full": "(무)흥국생명 하이브리드온라인연금보험(연금강화형)",
    "channel": "CM",
+   "channels": [
+    "CM"
+   ],
+   "channelText": "CM",
    "joinType": "거치",
    "rate1": null,
    "rate3": null,
@@ -869,6 +1096,12 @@ window.LUMPSUM_DATA = {
    "name": "동양 엔젤하이브리드 기본",
    "full": "(무)엔젤하이브리드연금보험(기본형)",
    "channel": "대면채널 방카슈랑스 기타",
+   "channels": [
+    "대면",
+    "방카",
+    "기타"
+   ],
+   "channelText": "대면+방카+기타",
    "joinType": "거치",
    "rate1": 101.71,
    "rate3": 110.07,
@@ -878,7 +1111,7 @@ window.LUMPSUM_DATA = {
    "wd": 70,
    "startYears": 5,
    "group": "hybrid",
-   "note": "",
+   "note": "인출 70%·연 12회 · 확정 4.84%",
    "card": false,
    "pdf": "https://pub.insure.or.kr/FileDown.do?fileNo=36522&seq=26"
   },
@@ -888,6 +1121,12 @@ window.LUMPSUM_DATA = {
    "name": "동양 엔젤하이브리드 연금강화",
    "full": "(무)엔젤하이브리드연금보험(연금강화형)",
    "channel": "대면채널 방카슈랑스 기타",
+   "channels": [
+    "대면",
+    "방카",
+    "기타"
+   ],
+   "channelText": "대면+방카+기타",
    "joinType": "거치",
    "rate1": 99.41,
    "rate3": 107.48,
@@ -907,6 +1146,12 @@ window.LUMPSUM_DATA = {
    "name": "동양 우리WON하는 누구나행복",
    "full": "(무)우리WON하는누구나행복연금보험",
    "channel": "대면채널 TM 기타",
+   "channels": [
+    "대면",
+    "TM",
+    "기타"
+   ],
+   "channelText": "대면+TM+기타",
    "joinType": "거치",
    "rate1": 99.57,
    "rate3": 103.36,
@@ -916,7 +1161,7 @@ window.LUMPSUM_DATA = {
    "wd": 70,
    "startYears": 5,
    "group": "hybrid",
-   "note": "중도인출 70%",
+   "note": "중도인출 70%·연 12회",
    "card": false,
    "pdf": "https://pub.insure.or.kr/FileDown.do?fileNo=13982&seq=24"
   },
@@ -926,6 +1171,10 @@ window.LUMPSUM_DATA = {
    "name": "iM 프리미엄 하이브리드 2601",
    "full": "iM 프리미엄 하이브리드 연금보험 무배당 2601(보증비용부과형)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 97.73,
    "rate3": 97.98,
@@ -945,6 +1194,10 @@ window.LUMPSUM_DATA = {
    "name": "ABL 우리들의달러연금 10년 확정형",
    "full": "(무)우리들의달러연금보험(10년이율확정형)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 103.09,
    "rate3": 114.64,
@@ -964,6 +1217,10 @@ window.LUMPSUM_DATA = {
    "name": "ABL 우리들의달러연금 5년 확정형",
    "full": "(무)우리들의달러연금보험(5년이율확정형)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 102.69,
    "rate3": 113.34,
@@ -983,6 +1240,10 @@ window.LUMPSUM_DATA = {
    "name": "푸본현대 뉴 하이브리드 1종 연금액강화",
    "full": "MAX 연금보험 뉴 하이브리드 거치형 1종 무배당(연금액강화형)(B2609)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 99.02,
    "rate3": 106.5,
@@ -1002,6 +1263,10 @@ window.LUMPSUM_DATA = {
    "name": "푸본현대 뉴 하이브리드 1종 일반",
    "full": "MAX 연금보험 뉴 하이브리드 거치형 1종 무배당(일반연금형)(B2609)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 101.78,
    "rate3": 109.54,
@@ -1021,6 +1286,11 @@ window.LUMPSUM_DATA = {
    "name": "푸본현대 뉴 하이브리드 2종 연금액강화",
    "full": "MAX 연금보험 뉴 하이브리드 거치형 2종 무배당(연금액강화형)(B2609)",
    "channel": "방카슈랑스 CM",
+   "channels": [
+    "방카",
+    "CM"
+   ],
+   "channelText": "방카+CM",
    "joinType": "거치",
    "rate1": 99.26,
    "rate3": 106.63,
@@ -1040,6 +1310,11 @@ window.LUMPSUM_DATA = {
    "name": "푸본현대 뉴 하이브리드 2종 일반",
    "full": "MAX 연금보험 뉴 하이브리드 거치형 2종 무배당(일반연금형)(B2609)",
    "channel": "방카슈랑스 CM",
+   "channels": [
+    "방카",
+    "CM"
+   ],
+   "channelText": "방카+CM",
    "joinType": "거치",
    "rate1": 102.01,
    "rate3": 109.69,
@@ -1059,6 +1334,10 @@ window.LUMPSUM_DATA = {
    "name": "푸본현대 MAX 2404",
    "full": "MAX 연금보험 무배당(2404)",
    "channel": "대면채널",
+   "channels": [
+    "대면"
+   ],
+   "channelText": "대면",
    "joinType": "거치",
    "rate1": 99.62,
    "rate3": 104.15,
@@ -1078,6 +1357,10 @@ window.LUMPSUM_DATA = {
    "name": "푸본현대 MAX 하이파이브",
    "full": "MAX 연금보험 하이파이브 무배당(A2404)",
    "channel": "대면채널",
+   "channels": [
+    "대면"
+   ],
+   "channelText": "대면",
    "joinType": "거치",
    "rate1": 100.01,
    "rate3": 103.92,
@@ -1097,6 +1380,10 @@ window.LUMPSUM_DATA = {
    "name": "하나 하이브리드 기본",
    "full": "(무)하나 하이브리드연금보험_기본형",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 101.95,
    "rate3": 110.1,
@@ -1116,6 +1403,10 @@ window.LUMPSUM_DATA = {
    "name": "하나 하이브리드 연금강화",
    "full": "(무)하나 하이브리드연금보험_연금강화형",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 97.04,
    "rate3": 106.21,
@@ -1135,6 +1426,10 @@ window.LUMPSUM_DATA = {
    "name": "메트라이프 달러연금 1종 기본(10년)",
    "full": "무배당 The Best Choice 달러연금보험_1종(기본형_거치)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 104.58,
    "rate3": 115.56,
@@ -1154,6 +1449,10 @@ window.LUMPSUM_DATA = {
    "name": "The Best Choice 달러연금보험_1종(기본형_쿠폰)",
    "full": "무배당 The Best Choice 달러연금보험_1종(기본형_쿠폰)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 99.65,
    "rate3": 99.88,
@@ -1173,6 +1472,10 @@ window.LUMPSUM_DATA = {
    "name": "The Best Choice 달러연금보험_1종(오로지연금형_거치)",
    "full": "무배당 The Best Choice 달러연금보험_1종(오로지연금형_거치)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 101.84,
    "rate3": 112.34,
@@ -1192,6 +1495,10 @@ window.LUMPSUM_DATA = {
    "name": "The Best Choice 달러연금보험_1종(오로지연금형_쿠폰)",
    "full": "무배당 The Best Choice 달러연금보험_1종(오로지연금형_쿠폰)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 97.31,
    "rate3": 97.93,
@@ -1211,6 +1518,10 @@ window.LUMPSUM_DATA = {
    "name": "메트라이프 달러연금 2종(5년)",
    "full": "무배당 The Best Choice 달러연금보험_2종(거치형)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 103.68,
    "rate3": 115.82,
@@ -1230,6 +1541,10 @@ window.LUMPSUM_DATA = {
    "name": "The Best Choice 달러연금보험_2종(쿠폰형)",
    "full": "무배당 The Best Choice 달러연금보험_2종(쿠폰형)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 99.6,
    "rate3": 102.76,
@@ -1249,6 +1564,10 @@ window.LUMPSUM_DATA = {
    "name": "메트라이프 The Best Choice 달러연금 3종",
    "full": "무배당 The Best Choice 달러연금보험_3종(거치형)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 103.2,
    "rate3": 114.21,
@@ -1268,6 +1587,10 @@ window.LUMPSUM_DATA = {
    "name": "메트라이프 연금보험Ⅱ 1종(10년)",
    "full": "무배당 The Best Choice 연금보험II_1종(거치형)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 102.49,
    "rate3": 109.35,
@@ -1287,6 +1610,10 @@ window.LUMPSUM_DATA = {
    "name": "메트라이프 연금보험Ⅱ 1종 오로지연금(10년)",
    "full": "무배당 The Best Choice 연금보험II_1종(오로지연금형_거치)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 97.35,
    "rate3": 104.57,
@@ -1306,6 +1633,10 @@ window.LUMPSUM_DATA = {
    "name": "The Best Choice 연금보험II_1종(오로지연금형_쿠폰)",
    "full": "무배당 The Best Choice 연금보험II_1종(오로지연금형_쿠폰)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 94.48,
    "rate3": 95.66,
@@ -1325,6 +1656,10 @@ window.LUMPSUM_DATA = {
    "name": "The Best Choice 연금보험II_1종(쿠폰형)",
    "full": "무배당 The Best Choice 연금보험II_1종(쿠폰형)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 99.35,
    "rate3": 99.59,
@@ -1344,6 +1679,10 @@ window.LUMPSUM_DATA = {
    "name": "메트라이프 연금보험Ⅱ 2종(5년)",
    "full": "무배당 The Best Choice 연금보험II_2종(거치형)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 101.69,
    "rate3": 108.01,
@@ -1363,6 +1702,10 @@ window.LUMPSUM_DATA = {
    "name": "The Best Choice 연금보험II_2종(쿠폰형)",
    "full": "무배당 The Best Choice 연금보험II_2종(쿠폰형)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 99.03,
    "rate3": 99.75,
@@ -1382,6 +1725,10 @@ window.LUMPSUM_DATA = {
    "name": "메트라이프 The Best Choice 연금보험Ⅱ 3종",
    "full": "무배당 The Best Choice 연금보험II_3종(거치형)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 102.91,
    "rate3": 112.57,
@@ -1401,6 +1748,10 @@ window.LUMPSUM_DATA = {
    "name": "메트라이프 eThe 달러연금 1종 기본(10년)",
    "full": "무배당 eThe Best Choice 달러연금보험_1종(기본형_거치)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 104.74,
    "rate3": 115.59,
@@ -1420,6 +1771,10 @@ window.LUMPSUM_DATA = {
    "name": "eThe Best Choice 달러연금보험_1종(기본형_쿠폰)",
    "full": "무배당 eThe Best Choice 달러연금보험_1종(기본형_쿠폰)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 99.81,
    "rate3": 99.89,
@@ -1439,6 +1794,10 @@ window.LUMPSUM_DATA = {
    "name": "eThe Best Choice 달러연금보험_1종(오로지연금형_거치)",
    "full": "무배당 eThe Best Choice 달러연금보험_1종(오로지연금형_거치)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 101.98,
    "rate3": 112.37,
@@ -1458,6 +1817,10 @@ window.LUMPSUM_DATA = {
    "name": "eThe Best Choice 달러연금보험_1종(오로지연금형_쿠폰)",
    "full": "무배당 eThe Best Choice 달러연금보험_1종(오로지연금형_쿠폰)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 97.45,
    "rate3": 97.95,
@@ -1477,6 +1840,11 @@ window.LUMPSUM_DATA = {
    "name": "메트라이프 eThe 달러연금 2종(5년)",
    "full": "무배당 eThe Best Choice 달러연금보험_2종(거치형)",
    "channel": "방카슈랑스 CM",
+   "channels": [
+    "방카",
+    "CM"
+   ],
+   "channelText": "방카+CM",
    "joinType": "거치",
    "rate1": 103.84,
    "rate3": 115.84,
@@ -1496,6 +1864,11 @@ window.LUMPSUM_DATA = {
    "name": "eThe Best Choice 달러연금보험_2종(쿠폰형)",
    "full": "무배당 eThe Best Choice 달러연금보험_2종(쿠폰형)",
    "channel": "방카슈랑스 CM",
+   "channels": [
+    "방카",
+    "CM"
+   ],
+   "channelText": "방카+CM",
    "joinType": "거치",
    "rate1": 99.76,
    "rate3": 102.77,
@@ -1515,6 +1888,11 @@ window.LUMPSUM_DATA = {
    "name": "메트라이프 eThe Best Choice 달러연금 3종",
    "full": "무배당 eThe Best Choice 달러연금보험_3종(거치형)",
    "channel": "방카슈랑스 CM",
+   "channels": [
+    "방카",
+    "CM"
+   ],
+   "channelText": "방카+CM",
    "joinType": "거치",
    "rate1": 103.36,
    "rate3": 114.23,
@@ -1534,6 +1912,10 @@ window.LUMPSUM_DATA = {
    "name": "메트라이프 오늘의 달러 연금보험(20년)",
    "full": "무배당 오늘의 달러 연금보험(거치형)",
    "channel": "대면채널",
+   "channels": [
+    "대면"
+   ],
+   "channelText": "대면",
    "joinType": "거치",
    "rate1": 103.88,
    "rate3": 113.74,
@@ -1553,6 +1935,10 @@ window.LUMPSUM_DATA = {
    "name": "오늘의 달러 연금보험(쿠폰형)",
    "full": "무배당 오늘의 달러 연금보험(쿠폰형)",
    "channel": "대면채널",
+   "channels": [
+    "대면"
+   ],
+   "channelText": "대면",
    "joinType": "거치",
    "rate1": 99.39,
    "rate3": 99.5,
@@ -1572,6 +1958,10 @@ window.LUMPSUM_DATA = {
    "name": "메트라이프 오늘의 연금보험 1형(20년)",
    "full": "무배당 오늘의 연금보험_1형(거치형)",
    "channel": "대면채널",
+   "channels": [
+    "대면"
+   ],
+   "channelText": "대면",
    "joinType": "거치",
    "rate1": 102.27,
    "rate3": 108.5,
@@ -1591,6 +1981,10 @@ window.LUMPSUM_DATA = {
    "name": "오늘의 연금보험_2형(쿠폰형)",
    "full": "무배당 오늘의 연금보험_2형(쿠폰형)",
    "channel": "대면채널",
+   "channels": [
+    "대면"
+   ],
+   "channelText": "대면",
    "joinType": "거치",
    "rate1": 99.35,
    "rate3": 99.44,
@@ -1610,6 +2004,10 @@ window.LUMPSUM_DATA = {
    "name": "AIA GOLDEN TIMEⅥ 7형(20년·쿠폰)",
    "full": "(무)GOLDEN TIME 연금보험VI 7형(연금강화형, 쿠폰형, 20년 이율확정형)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 97.4,
    "rate3": 98.41,
@@ -1619,7 +2017,7 @@ window.LUMPSUM_DATA = {
    "wd": 60,
    "startYears": 20,
    "group": "etc",
-   "note": "",
+   "note": "이율확정 20년 종료 후 인출 60% — 5년차 불가",
    "card": false,
    "pdf": "https://pub.insure.or.kr/FileDown.do?fileNo=45115&seq=1"
   },
@@ -1629,6 +2027,10 @@ window.LUMPSUM_DATA = {
    "name": "AIA GOLDEN TIMEⅥ 8형(20년·거치)",
    "full": "(무)GOLDEN TIME 연금보험VI 8형(연금강화형, 거치형, 20년 이율확정형)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 102.3,
    "rate3": 114.03,
@@ -1638,7 +2040,7 @@ window.LUMPSUM_DATA = {
    "wd": 60,
    "startYears": 20,
    "group": "etc",
-   "note": "",
+   "note": "이율확정 20년 종료 후 인출 60% — 5년차 불가",
    "card": false,
    "pdf": "https://pub.insure.or.kr/FileDown.do?fileNo=45117&seq=1"
   },
@@ -1648,6 +2050,10 @@ window.LUMPSUM_DATA = {
    "name": "AIA GOLDEN TIMEⅥ 1형(10년·쿠폰)",
    "full": "(무)GOLDEN TIME 연금보험Ⅵ 1형(기본형, 쿠폰형, 10년 이율확정형)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 98.19,
    "rate3": 98.22,
@@ -1667,6 +2073,10 @@ window.LUMPSUM_DATA = {
    "name": "AIA GOLDEN TIMEⅥ 2형(10년·거치)",
    "full": "(무)GOLDEN TIME 연금보험Ⅵ 2형(기본형, 거치형, 10년 이율확정형)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 103.69,
    "rate3": 115.79,
@@ -1686,6 +2096,10 @@ window.LUMPSUM_DATA = {
    "name": "AIA GOLDEN TIMEⅥ 3형(10년·쿠폰)",
    "full": "(무)GOLDEN TIME 연금보험Ⅵ 3형(연금강화형, 쿠폰형, 10년 이율확정형)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 97.19,
    "rate3": 97.4,
@@ -1695,7 +2109,7 @@ window.LUMPSUM_DATA = {
    "wd": 60,
    "startYears": 10,
    "group": "etc",
-   "note": "",
+   "note": "이율확정 10년 종료 후 인출 60% — 5년차 불가",
    "card": false,
    "pdf": "https://pub.insure.or.kr/FileDown.do?fileNo=45107&seq=1"
   },
@@ -1705,6 +2119,10 @@ window.LUMPSUM_DATA = {
    "name": "AIA GOLDEN TIMEⅥ 4형(10년·거치)",
    "full": "(무)GOLDEN TIME 연금보험Ⅵ 4형(연금강화형, 거치형, 10년 이율확정형)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 102.23,
    "rate3": 113.5,
@@ -1714,7 +2132,7 @@ window.LUMPSUM_DATA = {
    "wd": 60,
    "startYears": 10,
    "group": "etc",
-   "note": "",
+   "note": "이율확정 10년 종료 후 인출 60% — 5년차 불가",
    "card": false,
    "pdf": "https://pub.insure.or.kr/FileDown.do?fileNo=45109&seq=1"
   },
@@ -1724,6 +2142,10 @@ window.LUMPSUM_DATA = {
    "name": "AIA GOLDEN TIMEⅥ 5형(20년·쿠폰)",
    "full": "(무)GOLDEN TIME 연금보험Ⅵ 5형(기본형, 쿠폰형, 20년 이율확정형)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 98.62,
    "rate3": 99.85,
@@ -1733,7 +2155,7 @@ window.LUMPSUM_DATA = {
    "wd": 60,
    "startYears": 20,
    "group": "etc",
-   "note": "",
+   "note": "이율확정 20년 종료 후 인출 60% — 5년차 불가",
    "card": false,
    "pdf": "https://pub.insure.or.kr/FileDown.do?fileNo=45111&seq=1"
   },
@@ -1743,6 +2165,10 @@ window.LUMPSUM_DATA = {
    "name": "AIA GOLDEN TIMEⅥ 6형(20년·거치)",
    "full": "(무)GOLDEN TIME 연금보험Ⅵ 6형(기본형, 거치형, 20년 이율확정형)",
    "channel": "방카슈랑스",
+   "channels": [
+    "방카"
+   ],
+   "channelText": "방카",
    "joinType": "거치",
    "rate1": 103.86,
    "rate3": 116.56,
@@ -1752,7 +2178,7 @@ window.LUMPSUM_DATA = {
    "wd": 60,
    "startYears": 20,
    "group": "etc",
-   "note": "",
+   "note": "이율확정 20년 종료 후 인출 60% — 5년차 불가",
    "card": false,
    "pdf": "https://pub.insure.or.kr/FileDown.do?fileNo=45113&seq=1"
   },
@@ -1762,6 +2188,10 @@ window.LUMPSUM_DATA = {
    "name": "AIA 달러 연금Ⅲ 1형 1종",
    "full": "무배당 AIA 달러로 받는 연금보험III 1형 1종",
    "channel": "대면채널",
+   "channels": [
+    "대면"
+   ],
+   "channelText": "대면",
    "joinType": "거치",
    "rate1": 98.87,
    "rate3": 98.05,
@@ -1771,7 +2201,7 @@ window.LUMPSUM_DATA = {
    "wd": 60,
    "startYears": 10,
    "group": "etc",
-   "note": "이율확정 종료 후 인출 — 5년차 불가",
+   "note": "이율확정 10년 종료 후 인출 60% — 5년차 불가",
    "card": false,
    "pdf": "https://pub.insure.or.kr/FileDown.do?fileNo=46022&seq=1"
   },
@@ -1781,6 +2211,10 @@ window.LUMPSUM_DATA = {
    "name": "AIA 달러 연금Ⅲ 1형 2종",
    "full": "무배당 AIA 달러로 받는 연금보험III 1형 2종",
    "channel": "대면채널",
+   "channels": [
+    "대면"
+   ],
+   "channelText": "대면",
    "joinType": "거치",
    "rate1": 98.4,
    "rate3": 97.66,
@@ -1790,7 +2224,7 @@ window.LUMPSUM_DATA = {
    "wd": 60,
    "startYears": 10,
    "group": "etc",
-   "note": "",
+   "note": "이율확정 10년 종료 후 인출 60% — 5년차 불가",
    "card": false,
    "pdf": "https://pub.insure.or.kr/FileDown.do?fileNo=46024&seq=1"
   },
@@ -1800,6 +2234,10 @@ window.LUMPSUM_DATA = {
    "name": "AIA 달러 연금Ⅲ 2형 1종",
    "full": "무배당 AIA 달러로 받는 연금보험III 2형 1종",
    "channel": "대면채널",
+   "channels": [
+    "대면"
+   ],
+   "channelText": "대면",
    "joinType": "거치",
    "rate1": 103.4,
    "rate3": 112.54,
@@ -1809,7 +2247,7 @@ window.LUMPSUM_DATA = {
    "wd": 60,
    "startYears": 10,
    "group": "etc",
-   "note": "",
+   "note": "이율확정 10년 종료 후 인출 60% — 5년차 불가",
    "card": false,
    "pdf": "https://pub.insure.or.kr/FileDown.do?fileNo=46026&seq=1"
   },
@@ -1819,6 +2257,10 @@ window.LUMPSUM_DATA = {
    "name": "AIA 달러 연금Ⅲ 2형 2종",
    "full": "무배당 AIA 달러로 받는 연금보험III 2형 2종",
    "channel": "대면채널",
+   "channels": [
+    "대면"
+   ],
+   "channelText": "대면",
    "joinType": "거치",
    "rate1": 102.25,
    "rate3": 109.95,
@@ -1828,7 +2270,7 @@ window.LUMPSUM_DATA = {
    "wd": 60,
    "startYears": 10,
    "group": "etc",
-   "note": "",
+   "note": "이율확정 10년 종료 후 인출 60% — 5년차 불가",
    "card": false,
    "pdf": "https://pub.insure.or.kr/FileDown.do?fileNo=46028&seq=1"
   },
@@ -1838,6 +2280,10 @@ window.LUMPSUM_DATA = {
    "name": "AIA 달러 연금Ⅲ 3형 1종",
    "full": "무배당 AIA 달러로 받는 연금보험III 3형 1종",
    "channel": "대면채널",
+   "channels": [
+    "대면"
+   ],
+   "channelText": "대면",
    "joinType": "거치",
    "rate1": 98.57,
    "rate3": 97.2,
@@ -1847,7 +2293,7 @@ window.LUMPSUM_DATA = {
    "wd": 60,
    "startYears": 20,
    "group": "etc",
-   "note": "",
+   "note": "이율확정 20년 종료 후 인출 60% — 5년차 불가",
    "card": false,
    "pdf": "https://pub.insure.or.kr/FileDown.do?fileNo=46030&seq=1"
   },
@@ -1857,6 +2303,10 @@ window.LUMPSUM_DATA = {
    "name": "AIA 달러 연금Ⅲ 3형 2종",
    "full": "무배당 AIA 달러로 받는 연금보험III 3형 2종",
    "channel": "대면채널",
+   "channels": [
+    "대면"
+   ],
+   "channelText": "대면",
    "joinType": "거치",
    "rate1": 97.87,
    "rate3": 96.07,
@@ -1866,7 +2316,7 @@ window.LUMPSUM_DATA = {
    "wd": 60,
    "startYears": 20,
    "group": "etc",
-   "note": "",
+   "note": "이율확정 20년 종료 후 인출 60% — 5년차 불가",
    "card": false,
    "pdf": "https://pub.insure.or.kr/FileDown.do?fileNo=46032&seq=1"
   },
@@ -1876,6 +2326,10 @@ window.LUMPSUM_DATA = {
    "name": "AIA 달러 연금Ⅲ 4형 1종",
    "full": "무배당 AIA 달러로 받는 연금보험III 4형 1종",
    "channel": "대면채널",
+   "channels": [
+    "대면"
+   ],
+   "channelText": "대면",
    "joinType": "거치",
    "rate1": 103.62,
    "rate3": 113.29,
@@ -1885,7 +2339,7 @@ window.LUMPSUM_DATA = {
    "wd": 60,
    "startYears": 20,
    "group": "etc",
-   "note": "",
+   "note": "이율확정 20년 종료 후 인출 60% — 5년차 불가",
    "card": false,
    "pdf": "https://pub.insure.or.kr/FileDown.do?fileNo=46034&seq=1"
   },
@@ -1895,6 +2349,10 @@ window.LUMPSUM_DATA = {
    "name": "AIA 달러 연금Ⅲ 4형 2종",
    "full": "무배당 AIA 달러로 받는 연금보험III 4형 2종",
    "channel": "대면채널",
+   "channels": [
+    "대면"
+   ],
+   "channelText": "대면",
    "joinType": "거치",
    "rate1": 102.48,
    "rate3": 110.76,
@@ -1904,7 +2362,7 @@ window.LUMPSUM_DATA = {
    "wd": 60,
    "startYears": 20,
    "group": "etc",
-   "note": "",
+   "note": "이율확정 20년 종료 후 인출 60% — 5년차 불가",
    "card": false,
    "pdf": "https://pub.insure.or.kr/FileDown.do?fileNo=46036&seq=1"
   }
