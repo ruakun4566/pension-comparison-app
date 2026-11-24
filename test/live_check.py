@@ -14,6 +14,8 @@ LS_MEM = [p for p in _ls["products"] if "대면" in p["channels"]]
 LS_MEM_H = [p for p in LS_MEM if p["startYears"] is not None and 0 < p["startYears"] <= 5
             and not (p["company"].startswith("메트라이프") and p["startYears"] <= 3)]
 LS_BANK = [p for p in _ls["products"] if "방카" in p["channels"]]
+LS_BANK_H = [p for p in LS_BANK if p["startYears"] is not None and 0 < p["startYears"] <= 5
+             and not (p["company"].startswith("메트라이프") and p["startYears"] <= 3)]
 URL = "https://ruakun4566.github.io/pension-comparison-app/"
 DOCS = "/workspace/work/pension-comparison-app/docs"
 errs = []
@@ -106,7 +108,8 @@ with sync_playwright() as p:
     pg.wait_for_timeout(600)
     chk("live 탭5 방카 전환 카드 8개", pg.locator(".ls-card").count() == 8, pg.locator(".ls-card").count())
     chk("live 탭5 방카 전환 KB 카드", pg.locator('.ls-card[data-id="ls36"]').count() == 1)
-    chk(f"live 탭5 방카 표 {len(LS_BANK)}행 이상", pg.locator("#lsTableWrap tbody tr").count() >= len(LS_BANK),
+    chk(f"live 탭5 방카 5년차 표 {len(LS_BANK_H)}+1행",
+        pg.locator("#lsTableWrap tbody tr").count() == len(LS_BANK_H) + 1,
         pg.locator("#lsTableWrap tbody tr").count())
     pg.screenshot(path=os.path.join(DOCS, "tab5-lumpsum-banka-live.png"), full_page=True)
     pg.click('#lsChannel [data-channel="대면"]')
